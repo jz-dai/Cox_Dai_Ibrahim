@@ -1,0 +1,67 @@
+---
+title: "finalproject_wrangling"
+author: "Becca Cox"
+output: pdf_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Workspace
+
+```{r workspace}
+
+library(tidyverse)
+library(here)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+
+here()
+
+```
+
+## Bring in data
+
+```{r data}
+
+microplastics_east_raw <- read.csv(("NPSG_Microplastics_Raw/NPSG_East_Marine_Microplastics_WGS84.csv"), 
+                          stringsAsFactors = TRUE)
+
+microplastics_west_raw <- read.csv(("NPSG_Microplastics_Raw/NPSG_West_Marine_Microplastics_WGS84.csv"), 
+                          stringsAsFactors = TRUE)
+
+
+```
+
+```{r combine east and west}
+
+microplastics_east_west_raw <- rbind(microplastics_east_raw, microplastics_west_raw)
+
+```
+
+```{r select}
+
+microplastics_select <- microplastics_east_west_raw %>%
+  select(Measurement, Unit, Density.Range, Density.Class, Latitude, Longitude, Date) %>%
+  relocate(Date) %>%
+  relocate(Latitude, .after = Date) %>%
+  relocate(Longitude, .after = Latitude)
+  
+microplastics_date <- separate(microplastics_select, Date, c("Date", "Time"), sep = " ", remove = FALSE)
+
+microplastics_date$Date <- mdy(microplastics_date$Date)
+
+microplastics_byyear <- microplastics_date %>%
+  separate(Date, sep="-", into = c("Year", "Month", "Day")) %>%
+  select(Year,Month,Day,Latitude,Longitude,Measurement,Unit,Density.Range,Density.Class
+  )
+
+write.csv(microplastics_byyear, file = "NPSG_Microplastics_Processed/microplastics_data_wrangling.csv")
+
+```
+
+
