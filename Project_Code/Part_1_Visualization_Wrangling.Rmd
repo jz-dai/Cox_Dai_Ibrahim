@@ -1,0 +1,34 @@
+---
+title: "Data Visualization + Wrangling"
+author: "Becca_Jingze_Mason"
+output: html_notebook
+---
+## Setting up working environment
+
+```{r}
+library(tidyverse)
+library(here)
+here()
+```
+
+
+## Project introduction
+
+- Rational of picking this dataset
+- Research question:
+- Alternative hypothesis:
+- Null hypothesis
+
+```{r}
+# Importing dataset
+microplastic_raw <- read.csv(here('Data/Raw/Marine_microplastics.csv'))
+glimpse(microplastic_raw)
+```
+
+## Data visualization
+
+```{r}
+# Viewing dataset
+```
+
+## Data wrangling
