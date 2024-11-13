@@ -1,7 +1,6 @@
 ---
 title: "Data Visualization + Wrangling"
 author: "Becca_Jingze_Mason"
-output: html_notebook
 ---
 ## Setting up working environment
 
