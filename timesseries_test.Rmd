@@ -1,0 +1,153 @@
+---
+title: "timeseries_test"
+author: "Becca Cox"
+date: "2024-11-17"
+output: html_document
+---
+
+```{r}
+
+plastics <- read_csv('NPSG_Microplastics_Processed/microplastics_data_wrangling.csv')
+
+
+library(tidyverse)
+library(lubridate)
+#install.packages("trend")
+library(trend)
+#install.packages("zoo")
+library(zoo)
+#install.packages("Kendall")
+library(Kendall)
+#install.packages("tseries")
+library(tseries)
+library(dplyr)
+
+plastics_2000s <- plastics %>%
+  filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014)
+
+```
+
+```{r }
+
+ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
+  geom_point() +
+  ylim(0,10) +
+  geom_smooth(method = lm)
+
+#doesn't include outlier
+
+```
+
+```{r}
+
+plastic_means <- plastics_2000s %>%
+  group_by(Year) %>%
+  mutate(yearly.mean = mean(Measurement)) %>%
+  select(Year,yearly.mean)
+
+plastic_summ <- plastic_means %>%
+  group_by(Year,yearly.mean)%>%
+  summarize()
+
+ggplot(plastic_summ, aes(x = Year, y = yearly.mean)) +
+  geom_point() +
+  geom_smooth(method = lm)
+
+
+```
+
+```{r}
+
+#plastic.yearly.ts <- ts(plastic_summ$yearly.mean, start = 2002, frequency = 1)
+#i don't think I can decompose this
+
+```
+
+```{r}
+
+plastic_monthly_means <- plastics_2000s %>%
+  group_by(Year,Month) %>%
+  mutate(monthly.mean = mean(Measurement)) %>%
+  select(Year,monthly.mean)
+
+plastic_monthly_summ <- plastic_monthly_means %>%
+  group_by(Year,Month,monthly.mean)%>%
+  summarize()
+
+write.csv(plastic_monthly_summ,"NPSG_Microplastics_Processed/plastic_monthly_summ.csv")
+
+plastics_monthly_summ_nas <- read.csv('NPSG_Microplastics_Processed/plastic_monthly_summ_nas.csv')
+
+#removed 2014, only one data point and none for 2013
+
+monthly_clean <- 
+  plastics_monthly_summ_nas %>% 
+  mutate(monthly.clean = zoo::na.approx(plastics_monthly_summ_nas$monthly.mean, rule = 2))%>%
+  head(-1) #mysterious 133rd row
+
+ggplot(monthly_clean, aes(x = Year, y = monthly.clean)) +
+  geom_point() +
+  geom_smooth(method = lm)
+
+```
+
+```{r}
+
+plastic.monthly.ts <- ts(monthly_clean$monthly.clean, start = c(2002,1), frequency = 12)
+
+plastic.monthly.decomposed <- stl(plastic.monthly.ts, s.window = "periodic")
+
+plot(plastic.monthly.decomposed)
+
+```
+
+```{r}
+
+plastics.Components <- as.data.frame(plastic.monthly.decomposed$time.series[,1:3])
+
+library(lubridate)
+
+plastics.Components <- mutate(plastics.Components,
+        Observed = monthly_clean$monthly.clean,     
+        Year = monthly_clean$Year,
+        Month = monthly_clean$Month)
+
+plastics.Components.date <- plastics.Components %>%
+  mutate(Date = make_date(Year, Month))%>%
+  select(seasonal,trend,remainder,Observed,Date)
+
+# Visualize how the trend maps onto the data
+ggplot(plastics.Components.date) +
+  geom_line(aes(y = Observed, x = Date), color = 'blue') +
+  geom_line(aes(y = trend, x = Date), color = 'red')
+
+# Visualize how the seasonal cycle maps onto the data
+ggplot(plastics.Components.date) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
+  geom_line(aes(y = seasonal, x = Date), color = "#c13d75ff")
+
+plastics_mannkendall_trend <- Kendall::SeasonalMannKendall(plastic.monthly.ts)
+
+# Inspect results
+plastics_mannkendall_trend
+summary(plastics_mannkendall_trend)
+
+#no significant seasonal monotonic trend
+
+```
+
+```{r}
+
+plastics.Components.date <- mutate(plastics.Components.date,
+        NoSeason = (plastics.Components.date$Observed - plastics.Components.date$seasonal))
+
+plastics.noseason.ts <- ts(plastics.Components.date$NoSeason, start = c(2002,1), frequency = 12)
+
+noseason.trend <- Kendall::MannKendall(plastics.noseason.ts)
+noseason.trend
+summary(noseason.trend)
+
+#also not significant
+
+```
+

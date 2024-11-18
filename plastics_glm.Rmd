@@ -1,0 +1,54 @@
+---
+title: "plastics_glm"
+author: "Becca Cox"
+date: "2024-11-18"
+output: html_document
+---
+
+```{r}
+
+plastics <- read_csv('NPSG_Microplastics_Processed/microplastics_data_wrangling.csv')
+
+plastics_2000s <- plastics %>%
+  filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014)
+
+library(tidyverse)
+library(here)
+here()
+
+```
+
+
+Can we predict plastics by time?
+
+```{r}
+plasticstime.regression <- 
+  lm(plastics_2000s$Measurement ~ 
+       plastics_2000s$Year)
+
+summary(plasticstime.regression) #p value is <0.05
+
+# Correlation
+cor.test(plastics_2000s$Measurement, plastics_2000s$Year)
+
+plot(plasticstime.regression)
+par(mfrow = c(1,1))
+
+```
+
+## aic
+
+```{r}
+
+plasticsAIC <- lm(data = plastics_2000s, Measurement ~ Year + Month + 
+              Latitude + Longitude)
+
+#AIC the smaller the better
+
+step(plasticsAIC)
+
+plasticsAIC_best <- lm(data = plastics_2000s, Measurement ~ Year + Month)
+
+step(plasticsAIC_best) #year and month are explanatory
+
+```

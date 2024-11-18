@@ -1,0 +1,52 @@
+---
+title: "2000-2014"
+author: "Becca Cox"
+date: "2024-11-16"
+output: html_document
+---
+
+```{r packages}
+
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(here)
+library(mapview)
+here()
+
+```
+
+
+```{r}
+
+plastics <- read_csv('NPSG_Microplastics_Processed/microplastics_data_wrangling.csv')
+
+plastics2000_2014 <- read_csv('NPSG_Microplastics_Processed/microplastics_data_wrangling.csv') %>%
+  filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014) %>% 
+  mutate(Longitude = if_else(Longitude < 0, Longitude + 360, Longitude)) %>%
+  st_as_sf(coords = c('Longitude','Latitude'), crs=4326)
+
+#Inspect the object
+class(plastics2000_2014)
+
+#What is its CRS again?
+st_crs(plastics2000_2014)
+
+st_shift_longitude(plastics2000_2014)
+
+#Plot the data #i can't get them to show up on same side of the map!
+ggplot(plastics2000_2014) +
+  geom_sf()
+
+leaflet() %>% addTiles() %>% 
+  addMarkers(data=plastics2000_2014)
+
+mapview(plastics2000_2014, cex = 'Measurement')
+
+```
+
+
+```{r}
+
+
+```
