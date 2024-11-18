@@ -1,0 +1,156 @@
+---
+title: "Spatial Analysis Jingze"
+author: "Jingze Dai"
+
+---
+
+We decided to conduct a spatial analysis on the distribution of the level of microplastic in different period of time.
+
+My part will focus on the period 1972 - 1989.
+```{r}
+# importing libraries
+library(tidyverse)
+library(here)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(sf)
+library(leaflet)
+library(mapview)
+library(RColorBrewer)
+here()
+```
+
+```{r}
+# importing dataset
+microplastics_byyear <- read.csv(here("NPSG_Microplastics_Processed/microplastics_data_wrangling.csv"))
+```
+
+```{r}
+#microplastics_byyear <- read.csv(here("Data/Raw/Marine_microplastics.csv"))
+```
+
+
+```{r}
+# setting date as date format and selecting year in between the period of interest
+microplastics_period1 <- microplastics_byyear #%>% 
+  #filter(Year < 1990)
+
+# selecting western and eastern hemisphere
+microplastics_E <- microplastics_period1 %>% 
+  filter(Longitude < 0) %>% 
+  mutate(Longitude = Longitude + 360)
+
+microplastics_W <- microplastics_period1 %>% 
+  filter(Longitude >= 0)
+
+# joining the datasets
+microplastics_period1 <- rbind(microplastics_E, microplastics_W)
+```
+
+```{r}
+str(microplastics_period1)
+```
+
+
+```{r}
+period1.sf <- microplastics_period1 %>% 
+  st_as_sf(
+    coords = c('Longitude','Latitude'),
+    crs=4269)
+
+# arranging density class as factor
+period1.sf$Density.Class <- factor(
+  period1.sf$Density.Class, 
+  levels = c("Very Low", "Low", "Medium", "High", "Very High")
+)
+
+# creating a color palette
+palette <- c("green", "yellow", "orange", "red", "purple")
+```
+
+```{r}
+mapview(period1.sf, zcol="Density.Class", col.regions = palette)
+```
+
+
+```{r}
+density_palette <- colorFactor(
+  palette = c("green", "yellow", "orange", "red", "purple"),
+  levels = c("Very Low", "Low", "Medium", "High", "Very High") 
+)
+```
+
+
+```{r}
+period1.sf <- st_transform(period1.sf, crs = 4326)
+
+period1.sf$popup <- paste0(
+  "<b>Density Class:</b> ", period1.sf$Density.Class, "<br>",
+  "<b>Measurement:</b> ", period1.sf$Measurement, " ", period1.sf$Unit, "<br>",
+  "<b>Date:</b> ", period1.sf$Year, "-", period1.sf$Month, "-", period1.sf$Day
+)
+```
+
+
+```{r}
+# Create the map
+leaflet(data = period1.sf) %>%
+  addTiles() %>% # Add a base map
+  addCircleMarkers(
+    radius = 2, # Marker size
+    color = ~density_palette(Density.Class), # Color based on Density.Class
+    popup = ~popup, # Add popups
+    fillOpacity = 0.8
+  ) %>%
+  addLegend(
+    "bottomright", 
+    pal = density_palette, 
+    values = ~Density.Class, 
+    title = "Density Class",
+    opacity = 0.8
+  )
+
+```
+
+
+```{r}
+period1.sf <- st_transform(period1.sf, crs = 4326)
+
+period1.sf$popup <- paste0(
+  "<b>Density Class:</b> ", period1.sf$Density.Class, "<br>",
+  "<b>Measurement:</b> ", period1.sf$Measurement, " ", period1.sf$Unit, "<br>",
+  "<b>Date:</b> ", period1.sf$Year, "-", period1.sf$Month, "-", period1.sf$Day
+)
+
+# Reorder the Density.Class levels from "Very Low" to "Very High"
+period1.sf$Density.Class <- factor(
+  period1.sf$Density.Class, 
+  levels = c("Very Low", "Low", "Medium", "High", "Very High")
+)
+
+# Define a color palette matching the new order
+density_palette <- colorFactor(
+  palette = c("green", "yellow", "orange", "red", "purple"), # Choose colors for each class
+  levels = levels(period1.sf$Density.Class) # Uses the reordered levels
+)
+
+# Create the Leaflet map with the reordered legend
+leaflet(data = period1.sf) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    radius = 5,
+    color = ~density_palette(Density.Class),
+    popup = ~popup,
+    fillOpacity = 0.8
+  ) %>%
+  addLegend(
+    "bottomright",
+    pal = density_palette,
+    values = ~Density.Class,
+    title = "Density Class",
+    opacity = 0.8
+  )
+
+```
+
