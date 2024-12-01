@@ -92,7 +92,8 @@ pvc_cylinder <- pieces_per_m_cube %>%
 grab_sample <- pieces_per_m_cube %>% 
   filter(Sampling.Method == "Grab sample")
 
-selected_sampling <- rbind(neuston_net, manta_net,grab_sample)
+selected_sampling <- rbind(neuston_net, manta_net,grab_sample, sea_pump, van_dorn, pvc_cylinder)
+selected_sampling$Measurement.log <- log(selected_sampling$Measurement)
 
 ```
 
@@ -100,7 +101,7 @@ selected_sampling <- rbind(neuston_net, manta_net,grab_sample)
 
 ```{r}
 boxplot_sampling <- ggplot(selected_sampling,
-                  aes(x = Sampling.Method, y = Measurement)) +
+                  aes(x = Sampling.Method, y = Measurement.log)) +
   geom_boxplot() +
   labs(title = "Sampling method", y = "Measurement (pieces/m^3)")
 
