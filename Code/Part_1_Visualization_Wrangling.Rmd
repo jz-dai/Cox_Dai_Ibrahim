@@ -20,8 +20,9 @@ here()
 
 ```{r}
 # Importing dataset
-microplastic_raw <- read.csv(here('Data/Raw/Marine_microplastics.csv'))
-glimpse(microplastic_raw)
+microplastic_raw_East <- read.csv(here('Data/NPSG_Microplastics_Raw/NPSG_East_Marine_Microplastics_WGS84.csv'))
+microplastic_raw_West <- read.csv(here('Data/NPSG_Microplastics_Raw/NPSG_West_Marine_Microplastics_WGS84.csv'))
+glimpse(microplastic_raw_East)
 ```
 
 ## Data visualization
