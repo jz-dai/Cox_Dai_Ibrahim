@@ -6,15 +6,16 @@ output: html_document
 ---
 
 ```{r}
+library(tidyverse)
+library(here)
+here()
 
-plastics <- read_csv('NPSG_Microplastics_Processed/microplastics_data_wrangling.csv')
+plastics <- read_csv('Data/NPSG_Microplastics_Processed/microplastics_data_wrangling.csv')
 
 plastics_2000s <- plastics %>%
   filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014)
 
-library(tidyverse)
-library(here)
-here()
+
 
 ```
 

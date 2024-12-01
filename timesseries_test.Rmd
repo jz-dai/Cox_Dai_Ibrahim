@@ -6,10 +6,6 @@ output: html_document
 ---
 
 ```{r}
-
-plastics <- read_csv('NPSG_Microplastics_Processed/microplastics_data_wrangling.csv')
-
-
 library(tidyverse)
 library(lubridate)
 #install.packages("trend")
@@ -21,6 +17,12 @@ library(Kendall)
 #install.packages("tseries")
 library(tseries)
 library(dplyr)
+
+
+plastics <- read_csv('Data/NPSG_Microplastics_Processed/microplastics_data_wrangling.csv')
+
+
+
 
 plastics_2000s <- plastics %>%
   filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014)
@@ -74,9 +76,9 @@ plastic_monthly_summ <- plastic_monthly_means %>%
   group_by(Year,Month,monthly.mean)%>%
   summarize()
 
-write.csv(plastic_monthly_summ,"NPSG_Microplastics_Processed/plastic_monthly_summ.csv")
+write.csv(plastic_monthly_summ,"Data/NPSG_Microplastics_Processed/plastic_monthly_summ.csv")
 
-plastics_monthly_summ_nas <- read.csv('NPSG_Microplastics_Processed/plastic_monthly_summ_nas.csv')
+plastics_monthly_summ_nas <- read.csv('Data/NPSG_Microplastics_Processed/plastic_monthly_summ_nas.csv')
 
 #removed 2014, only one data point and none for 2013
 
