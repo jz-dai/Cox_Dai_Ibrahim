@@ -23,7 +23,7 @@ here()
 
 ```{r}
 # importing dataset
-microplastics_byyear <- read.csv(here("NPSG_Microplastics_Processed/microplastics_data_wrangling.csv"))
+microplastics_byyear <- read.csv(here("Data/NPSG_Microplastics_Processed/microplastics_data_wrangling.csv"))
 ```
 
 ```{r}
