@@ -1,0 +1,161 @@
+---
+title: "writeup_draft"
+author: "Becca Cox"
+date: "2024-12-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Project Introduction
+
+### Research Question
+
+### Dataset Information
+
+### Exploratory Analysis
+
+## Global Data
+
+```{r}
+
+library(tidyverse)
+library(here)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(sf)
+library(leaflet)
+library(mapview)
+library(RColorBrewer)
+here()
+
+# importing dataset
+microplastics <- read.csv(here("Data/NPSG_Microplastics_Raw/Marine_microplastics.csv"))
+
+globalmicroplastics.sf <- microplastics %>% 
+  st_as_sf(
+    coords = c('Longitude','Latitude'),
+    crs=4269)
+
+mapview(globalmicroplastics.sf) #I'm confused here
+
+```
+
+## NPSG Data
+
+# Distribution of Samples
+
+```{r}
+
+#all years
+NPSG_plastics <- read.csv(here("Data/NPSG_Microplastics_Processed/microplastics_data_wrangling.csv")) %>%
+  mutate(Longitude = if_else(Longitude < 0, Longitude + 360, Longitude)) %>%
+  st_as_sf(coords = c('Longitude','Latitude'), crs=4326)
+
+#is out coordinate system 4326 or 4269?
+
+mapview(NPSG_plastics)
+
+```
+
+# Distribution of Plastics Densities
+
+```{r}
+
+# arranging density class as factor
+NPSG_plastics$Density.Class <- factor(
+  NPSG_plastics$Density.Class, 
+  levels = c("Very Low", "Low", "Medium", "High", "Very High")
+)
+
+# creating a color palette
+palette <- c("green", "yellow", "orange", "red", "purple")
+```
+
+```{r}
+mapview(NPSG_plastics, zcol="Density.Class", col.regions = palette)
+```
+
+
+```{r}
+density_palette <- colorFactor(
+  palette = c("green", "yellow", "orange", "red", "purple"),
+  levels = c("Very Low", "Low", "Medium", "High", "Very High") 
+)
+```
+
+
+```{r}
+
+NPSG_plastics$popup <- paste0(
+  "<b>Density Class:</b> ", NPSG_plastics$Density.Class, "<br>",
+  "<b>Measurement:</b> ", NPSG_plastics$Measurement, " ", NPSG_plastics$Unit, "<br>",
+  "<b>Date:</b> ", NPSG_plastics$Year, "-", NPSG_plastics$Month, "-", NPSG_plastics$Day
+)
+```
+
+
+
+```{r}
+# Reorder the Density.Class levels from "Very Low" to "Very High"
+NPSG_plastics$Density.Class <- factor(
+  NPSG_plastics$Density.Class, 
+  levels = c("Very Low", "Low", "Medium", "High", "Very High")
+)
+
+# Create the Leaflet map with the reordered legend
+leaflet(data = NPSG_plastics) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    radius = 5,
+    color = ~density_palette(Density.Class),
+    popup = ~popup,
+    fillOpacity = 0.8
+  ) %>%
+  addLegend(
+    "bottomright",
+    pal = density_palette,
+    values = ~Density.Class,
+    title = "Density Class",
+    opacity = 0.8
+  )
+
+```
+
+# Other variables: does the amount of plastic differ with time?
+
+
+```{r}
+
+plastics_2000s <- NPSG_plastics %>%
+  filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014)
+
+ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
+  geom_point() +
+  geom_smooth(method = lm)
+
+#remove outlier
+
+ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
+  geom_point() +
+  ylim(0,10) +
+  geom_smooth(method = lm)
+
+```
+
+### Exploratory Analysis
+
+## Variability in sampling methods
+
+## Plastics and time
+
+## Time series
+
+### Summary and Conclusions
+
+```
+
+
