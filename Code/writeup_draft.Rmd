@@ -26,15 +26,16 @@ knitr::opts_chunk$set(
 
 # 3. Dataset Information
 
-# 4. Exploratory Analysis
+Table: Table 1. Dataset information
 
-## 4.1 Global Data
-
-<center>
+Detail  | Description
+:-------------: | :-------------:
+Data Source | NOAA NCEI Marine Microplastics
+Retrieved from  | https://www.ncei.noaa.gov/products/microplastics
+Variables, wrangled | Year, Month, Day, Measurement, Unit, Density.Range, Density.Class, Latitude, Longitude
+Date Range, wrangled | April 28, 1972 - February 21, 2014
 
 ```{r}
-
-
 
 library(tidyverse)
 library(here)
@@ -48,6 +49,25 @@ library(RColorBrewer)
 
 # importing dataset
 microplastics <- read.csv(here("Data/NPSG_Microplastics_Raw/Marine_microplastics.csv"))
+
+library(kableExtra)
+
+plastics_bib <- microplastics[, c("Short.Reference", "DOI")]
+
+kable(unique(plastics_bib),
+caption = "Table 2. NOAA NCEI Microplastics data contributors",
+  col.names = c("Count","Citation","DOI"),
+  align = "c")
+
+```
+
+# 4. Exploratory Analysis
+
+## 4.1 Global Data
+
+<center>
+
+```{r}
 
 globalmicroplastics.sf <- microplastics %>% 
   st_as_sf(
@@ -185,7 +205,7 @@ ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
 
 At first glance, there appears to be an upward trend.
 
-# 5. Exploratory Analysis
+# 5. Analysis
 
 ## 5.1 Variability in sampling methods
 
@@ -256,7 +276,7 @@ library(knitr)
 library(kableExtra)
 
 kable(summary(microplastics$Sampling.Method),
-  caption = "Table 1. Occurrences of Various Sampling Methods within Global Dataset",
+  caption = "Table 2. Occurrences of Various Sampling Methods within Global Dataset",
   col.names = c("Method","Number of Samples"),
   align = "c")
 
@@ -312,13 +332,13 @@ step(plasticsAIC_best) #year and month are explanatory
 
 ```
 
-Table: Table 2. Generalized Linear Model Analysis
+Table: Table 3. Generalized Linear Model Analysis
 
 Analysis  | P-Value
 :-------------: | :-------------:
 Linear Regression  | 1.284e-05
 
-Table: Table 3. AIC Analysis, formula = Measurement ~ Year + Month + Latitude + Longitude
+Table: Table 4. AIC Analysis, formula = Measurement ~ Year + Month + Latitude + Longitude
 
 Variable  | AIC
 :-------------: | :-------------:
@@ -463,7 +483,7 @@ summary(noseason.trend)
 
 ```
 
-Table: Table 4. Trend Analyses
+Table: Table 5. Trend Analyses
 
 Analysis  | 2-sided P-Value
 :-------------: | :-------------:
