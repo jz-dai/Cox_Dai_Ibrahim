@@ -1,0 +1,545 @@
+---
+title: "Final Report draft"
+author: "Jingze Dai"
+date: "2024-12-09"
+output: 
+  html_document:
+    toc: TRUE
+  
+---
+\listoftables
+\listoffigures
+
+```{r include=FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center",
+  fig.width = 8
+)
+
+```
+
+# 1. Project Introduction
+
+**The Great Pacific Garbage Patch**  
+
+
+The North Pacific Gyre is created by ocean currents connecting two smaller garbage patches: one near Japan and another between Hawaii and California. These currents form a large vortex that spans an area approximately twice the size of Texas, trapping debris within its rotation.  
+
+
+The Great Pacific Garbage Patch, part of this gyre, is not a solid island of trash but a massive area of polluted ocean. It is dominated by microplastics, with concentrations of up to 1.9 million pieces per square mile. Larger items, such as abandoned fishing nets, plastic containers, and buoys, are also present, with pollution stretching over 2,000 miles.  
+
+
+Marine debris has severe consequences for marine life. Sea turtles mistake plastic bags for food, while birds feed plastic fragments to their chicks, causing injury or starvation. Marine mammals are at risk of becoming entangled in discarded fishing nets, often drowning in a process known as ghost fishing.  
+
+
+This debris also disrupts the marine food web. Microplastics and other trash block sunlight needed by plankton and algae, which are crucial to the ocean's ecosystem. A decline in these organisms reduces food sources for other species, potentially impacting the entire food chain and threatening seafood availability for humans.  
+
+
+Plastics exacerbate these problems by releasing harmful chemicals, such as BPA, as they degrade. They also absorb pollutants like PCBs from seawater, introducing these toxins into the food chain when consumed by marine animals.  
+
+
+**Methods of Microplastic Collections**   
+
+
+Organizations like The Ocean Cleanup are actively working to remove waste from high-pollution areas such as the Great Pacific Garbage Patch. Their efforts focus on innovative strategies to extract plastic debris and reduce the environmental impact of marine pollution.  
+
+
+To address the vast amounts of trash, multiple methods are employed, each tailored to target different types of debris. Hand picking is used for larger, visible items, such as fishing nets and containers. For microplastics and smaller debris, specialized tools are implemented.  
+
+
+The Neuston net, a fine mesh net traditionally used in oceanography, collects samples from the ocean's surface. Its improved counterpart, the Manta net, allows for continuous-flow collection, increasing efficiency. Grab sampling involves collecting known volumes of surface water using glass containers, ensuring all microplastics within the sample are captured. For debris embedded in coastal sands, a PVC cylinder is utilized to extract sand samples for analysis and cleanup.  
+
+
+By combining these approaches, organizations are making strides in tackling marine pollution while contributing to scientific understanding of its composition and distribution.  
+
+
+**Rationale to Study Plastic Collection in the Garbage Patch** 
+
+
+Studying plastic collection in the Great Pacific Garbage Patch is essential for driving progress in cleanup efforts and addressing marine pollution effectively. Quantifying the amount of plastic removed provides a clear measure of success, offering tangible evidence of progress toward cleanup goals. Analyzing this data also helps evaluate the effectiveness of different methods, identifying which strategies work best and why.  
+
+
+Furthermore, the information gathered plays a critical role in shaping global policies. Reliable data supports legislative efforts aimed at improving waste management and reducing plastic production. It also raises public awareness by highlighting the scale of the problem, inspiring greater support for environmental initiatives.  
+
+
+Finally, studying plastic collection fosters continuous improvement. Feedback from data collection enables the optimization of technologies and methodologies, making future cleanup operations more efficient and impactful. This research not only contributes to the current fight against marine pollution but also lays the groundwork for more sustainable solutions.  
+
+# 2. Research Question
+
+# 3. Dataset Information
+
+Table: Table 1. Dataset information
+
+Detail  | Description
+:-------------: | :-------------:
+Data Source | NOAA NCEI Marine Microplastics
+Retrieved from  | https://www.ncei.noaa.gov/products/microplastics
+Variables, wrangled | Year, Month, Day, Measurement, Unit, Density.Range, Density.Class, Latitude, Longitude
+Date Range, wrangled | April 28, 1972 - February 21, 2014
+
+```{r}
+
+library(tidyverse)
+library(here)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(sf)
+library(leaflet)
+library(mapview)
+library(RColorBrewer)
+
+# importing dataset
+microplastics <- read.csv(here("Data/NPSG_Microplastics_Raw/Marine_microplastics.csv"))
+
+library(kableExtra)
+
+plastics_bib <- microplastics[, c("Short.Reference", "DOI")]
+
+kable(unique(plastics_bib),
+caption = "Table 2. NOAA NCEI Microplastics data contributors",
+  col.names = c("Count","Citation","DOI"),
+  align = "c")
+
+```
+
+# 4. Exploratory Analysis
+
+## 4.1 Global Data
+
+<center>
+
+```{r}
+
+globalmicroplastics.sf <- microplastics %>% 
+  st_as_sf(
+    coords = c('Longitude','Latitude'),
+    crs=4269)
+
+mapview(globalmicroplastics.sf) #I'm confused here
+
+```
+
+</center>
+
+This is data from entire globe.
+
+## 4.2 NPSG Data
+
+
+
+<center>
+
+### Distribution of Samples
+
+```{r}
+
+#all years
+NPSG_plastics <- read.csv(here("Data/NPSG_Microplastics_Processed/microplastics_data_wrangling.csv")) %>%
+  mutate(Longitude = if_else(Longitude < 0, Longitude + 360, Longitude)) %>%
+  st_as_sf(coords = c('Longitude','Latitude'), crs=4326)
+
+#is out coordinate system 4326 or 4269?
+
+mapview(NPSG_plastics)
+
+```
+
+</center>
+
+Samples within the NPSG.
+
+<style>
+.centered {
+  text-align: center;
+}
+</style>
+
+<div class="centered">
+
+### Distribution of Plastics Densities
+
+<style>
+.leaflet {
+    margin: auto;
+}
+</style>
+
+```{r include=FALSE}
+
+# arranging density class as factor
+NPSG_plastics$Density.Class <- factor(
+  NPSG_plastics$Density.Class, 
+  levels = c("Very Low", "Low", "Medium", "High", "Very High")
+)
+
+# creating a color palette
+palette <- c("green", "yellow", "orange", "red", "purple")
+
+density_palette <- colorFactor(
+  palette = c("green", "yellow", "orange", "red", "purple"),
+  levels = c("Very Low", "Low", "Medium", "High", "Very High")) 
+
+NPSG_plastics$popup <- paste0(
+  "<b>Density Class:</b> ", NPSG_plastics$Density.Class, "<br>",
+  "<b>Measurement:</b> ", NPSG_plastics$Measurement, " ", NPSG_plastics$Unit, "<br>",
+  "<b>Date:</b> ", NPSG_plastics$Year, "-", NPSG_plastics$Month, "-", NPSG_plastics$Day)
+
+# Reorder the Density.Class levels from "Very Low" to "Very High"
+NPSG_plastics$Density.Class <- factor(
+  NPSG_plastics$Density.Class, 
+  levels = c("Very Low", "Low", "Medium", "High", "Very High")
+)
+```
+
+```{r align}
+# Create the Leaflet map with the reordered legend
+leaflet(data = NPSG_plastics) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    radius = 5,
+    color = ~density_palette(Density.Class),
+    popup = ~popup,
+    fillOpacity = 0.8
+  ) %>%
+  addLegend(
+    "bottomright",
+    pal = density_palette,
+    values = ~Density.Class,
+    title = "Density Class",
+    opacity = 0.8
+  )
+
+```
+
+</div>
+
+Samples of different density classes.
+
+
+<div style="text-align: center;">
+
+### Other variables: does the amount of plastic differ with time?
+
+```{r include = FALSE}
+
+plastics_2000s <- NPSG_plastics %>%
+  filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014)
+
+ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
+  geom_point() +
+  geom_smooth(method = lm)
+
+```
+
+</div>
+
+```{r  fig.cap="Plastics over Time"}
+#remove outlier
+
+ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
+  geom_point() +
+  ylim(0,10) +
+  geom_smooth(method = lm)+
+  labs(title = "Figure 1. Measured plastic per sample over time", y = "Amount of Plastic (pieces/m^3)")
+
+```
+
+At first glance, there appears to be an upward trend.
+
+# 5. Analysis
+
+## 5.1 Variability in sampling methods
+
+```{r include = FALSE}
+
+#clean data
+microplastics$Sampling.Method <- as.factor(microplastics$Sampling.Method)
+summary(microplastics$Sampling.Method)
+
+microplastics$Unit <- as.factor(microplastics$Unit)
+summary(microplastics$Unit)
+
+#select sampling method
+microplastics_selected <- microplastics %>% 
+  filter(Sampling.Method == c("Hand picking", "Neuston net", "Manta net", "Grab sample", "PVC cylinder"))
+
+#group by unit
+pieces_per_kg_dw <- microplastics %>% 
+  filter(Unit == "pieces kg-1 d.w.") %>% 
+  group_by(Sampling.Method)
+
+pieces_per_10mins <- microplastics %>% 
+  filter(Unit == "pieces/10 mins") %>% 
+  group_by(Sampling.Method)
+
+pieces_per_m_cube <- microplastics %>% 
+  filter(Unit == "pieces/m3") %>% 
+  group_by(Sampling.Method)
+
+summary(pieces_per_kg_dw$Sampling.Method)
+
+summary(pieces_per_10mins$Sampling.Method)
+
+summary(pieces_per_m_cube$Sampling.Method)
+
+#filter by method
+neuston_net <- pieces_per_m_cube %>% 
+  filter(Sampling.Method == "Neuston net")
+
+sea_pump <- pieces_per_m_cube %>% 
+  filter(Sampling.Method == "Intake seawater pump")
+
+manta_net <- pieces_per_m_cube %>% 
+  filter(Sampling.Method == "Manta net")
+
+van_dorn <- pieces_per_m_cube %>% 
+  filter(Sampling.Method == "Van Dorn sampler")
+
+pvc_cylinder <- pieces_per_m_cube %>% 
+  filter(Sampling.Method == "PVC cylinder")
+
+grab_sample <- pieces_per_m_cube %>% 
+  filter(Sampling.Method == "Grab sample")
+
+#combine
+selected_sampling <- rbind(neuston_net, manta_net,grab_sample, sea_pump, van_dorn, pvc_cylinder)
+selected_sampling$Measurement.log <- log(selected_sampling$Measurement)
+#WHY DID WE LOG
+
+#IS THERE A TABLE WE COULD MAKE FOR THIS? SUMMARY TABLE I TRY TO MAKE HAS NEGATIVE INFINITY?
+
+```
+
+```{r fig.cap="Sampling Method"}
+
+library(knitr)
+#install.packages("kableExtra")
+library(kableExtra)
+
+kable(summary(microplastics$Sampling.Method),
+  caption = "Table 2. Occurrences of Various Sampling Methods within Global Dataset",
+  col.names = c("Method","Number of Samples"),
+  align = "c")
+
+boxplot_sampling <- ggplot(selected_sampling,
+                  aes(x = Sampling.Method, y = Measurement.log)) +
+  geom_boxplot() +
+  labs(title = "Figure 2. Variations in amount of plastic per sample by sampling method", y = "Amount of Plastic (pieces/m^3)", x = "Sampling Method")
+
+#ARE THE MEASUREMENTS ALL IN PIECES/M3 HERE?
+
+boxplot_sampling
+```
+
+Measurements take by each sampling method.
+
+## 5.2 Plastics and time
+
+```{r include = FALSE}
+
+#non-geometry version
+NPSG_plastics_latlong <- read.csv(here("Data/NPSG_Microplastics_Processed/microplastics_data_wrangling.csv")) %>%
+  mutate(Longitude = if_else(Longitude < 0, Longitude + 360, Longitude))
+
+plastics_2000s_latlong <- NPSG_plastics_latlong %>%
+  filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014)
+
+#Regression
+plasticstime.regression <- 
+  lm(plastics_2000s_latlong$Measurement ~ 
+       plastics_2000s_latlong$Year)
+
+summary(plasticstime.regression) #p value is <0.05
+
+# Correlation
+cor.test(plastics_2000s_latlong$Measurement, plastics_2000s_latlong$Year)
+
+plot(plasticstime.regression) #DO WE WANT THESE DISPLAYED??
+
+par(mfrow = c(1,1))
+
+#AIC
+
+plasticsAIC <- lm(data = plastics_2000s_latlong, Measurement ~ Year + Month + 
+              Latitude + Longitude)
+
+#AIC the smaller the better
+
+step(plasticsAIC)
+
+plasticsAIC_best <- lm(data = plastics_2000s_latlong, Measurement ~ Year + Month)
+
+step(plasticsAIC_best) #year and month are explanatory
+
+```
+
+Table: Table 3. Generalized Linear Model Analysis
+
+Analysis  | P-Value
+:-------------: | :-------------:
+Linear Regression  | 1.284e-05
+
+Table: Table 4. AIC Analysis, formula = Measurement ~ Year + Month + Latitude + Longitude
+
+Variable  | AIC
+:-------------: | :-------------:
+- Longitude  | 1069.2
+no change | 1070.6
+- Latitude | 1071.3
+- Month | 1076.2
+- Year | 1090.5
+
+```{r include=FALSE}
+
+summary(plasticstime.regression)
+
+cor.test(plastics_2000s_latlong$Measurement, plastics_2000s_latlong$Year)
+
+plasticsAIC <- lm(data = plastics_2000s_latlong, Measurement ~ Year + Month + 
+              Latitude + Longitude)
+
+#AIC the smaller the better
+
+step(plasticsAIC)
+
+plasticsAIC_best <- lm(data = plastics_2000s_latlong, Measurement ~ Year + Month + Latitude)
+
+step(plasticsAIC_best) #year and month are explanatory
+
+```
+
+P value is less than significance level of 0.05. AIC suggests Month, Year, and Latitude are explanatory variables.
+
+## 5.3 Time series
+
+```{r include=FALSE}
+
+#interpolation
+
+plastic_monthly_means <- plastics_2000s_latlong %>%
+  group_by(Year,Month) %>%
+  mutate(monthly.mean = mean(Measurement)) %>%
+  select(Year,monthly.mean,Month)
+
+plastic_monthly_summ <- plastic_monthly_means %>%
+  group_by(Year,Month,monthly.mean)%>%
+  summarize()
+
+write.csv(plastic_monthly_summ,"Data/NPSG_Microplastics_Processed/plastic_monthly_summ.csv")
+
+plastics_monthly_summ_nas <- read.csv('Data/NPSG_Microplastics_Processed/plastic_monthly_summ_nas.csv')
+
+#removed 2014, only one data point and none for 2013
+
+monthly_clean <- 
+  plastics_monthly_summ_nas %>% 
+  mutate(monthly.clean = zoo::na.approx(plastics_monthly_summ_nas$monthly.mean, rule = 2))%>%
+  head(-1) #mysterious 133rd row
+
+ggplot(monthly_clean, aes(x = Year, y = monthly.clean)) +
+  geom_point() +
+  geom_smooth(method = lm)
+
+#time series
+
+plastic.monthly.ts <- ts(monthly_clean$monthly.clean, start = c(2002,1), frequency = 12)
+
+plastic.monthly.decomposed <- stl(plastic.monthly.ts, s.window = "periodic")
+
+```
+
+```{r fig.cap="Figure 3. Decomposition of time series"}
+
+plot(plastic.monthly.decomposed)
+
+```
+
+```{r include=FALSE}
+plastics.Components <- as.data.frame(plastic.monthly.decomposed$time.series[,1:3])
+
+library(lubridate)
+
+plastics.Components <- mutate(plastics.Components,
+        Observed = monthly_clean$monthly.clean,     
+        Year = monthly_clean$Year,
+        Month = monthly_clean$Month)
+
+plastics.Components.date <- plastics.Components %>%
+  mutate(Date = make_date(Year, Month))%>%
+  select(seasonal,trend,remainder,Observed,Date)
+
+# Visualize how the trend maps onto the data
+ggplot(plastics.Components.date) +
+  geom_line(aes(y = Observed, x = Date), color = 'blue') +
+  geom_line(aes(y = trend, x = Date), color = 'red')
+
+# Visualize how the seasonal cycle maps onto the data
+ggplot(plastics.Components.date) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
+  geom_line(aes(y = seasonal, x = Date), color = "#c13d75ff")
+
+```
+
+```{r include = FALSE}
+
+plastics_mannkendall_trend <- Kendall::SeasonalMannKendall(plastic.monthly.ts)
+
+# Inspect results
+plastics_mannkendall_trend
+summary(plastics_mannkendall_trend)
+
+#no significant seasonal monotonic trend
+
+plastics.Components.date <- mutate(plastics.Components.date,
+        NoSeason = (plastics.Components.date$Observed - plastics.Components.date$seasonal))
+
+plastics.noseason.ts <- ts(plastics.Components.date$NoSeason, start = c(2002,1), frequency = 12)
+
+noseason.trend <- Kendall::MannKendall(plastics.noseason.ts)
+noseason.trend
+summary(noseason.trend)
+
+#also not significant
+
+```
+
+```{r fig.cap="Seasonality removed"}
+
+ggplot(plastics.Components.date) +
+  geom_line(aes(y = NoSeason, x = Date, color = "Seasonality Removed"))+
+  geom_line(aes(y = Observed, x = Date, color = "Observed"))+
+  labs(title = "Figure 4. Observed values compared to values with seasonality removed", y = "Measurement (pieces/m^3)", x = "Year")
+
+#IS THIS STILL IN PIECES/M3??
+
+```
+
+```{r include=FALSE}
+
+plastics_mannkendall_trend
+summary(plastics_mannkendall_trend)
+
+noseason.trend
+summary(noseason.trend)
+
+```
+
+Table: Table 5. Trend Analyses
+
+Analysis  | 2-sided P-Value
+:-------------: | :-------------:
+Seasonal Mann-Kendall  | 0.11049
+Non-Seasonal Mann-Kendall | 0.069721
+
+Interpolated values across the years. Time series analysis, there does seem to be seasonality. The trend has a stronger increase in later years.
+
+# 6. Summary and Conclusions
+
+```
+
+
