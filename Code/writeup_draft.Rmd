@@ -78,10 +78,11 @@ Regarding the first research question, acknowledging convergent zone within the 
 
 For the second research question, our pessimistic alternative hypothesis is that plastic pollution levels demonstrate an increasing trend over time, driven by global mass consumption. The null hypothesis predicts that the pollution level fluctuates and does not reflect a fixed pattern. 
 
-In addition to the main quest, we are also curious about the **differences among various data collection methods**, therefore we want to have a third research question: 
+In addition to these main questions, we also seek to explore **differences among various data collection methods**, hence adding our third research question: 
+
 3. Based on the measured concentration level, are sampling methods different from one another? 
 
-We hypothesize that the methods are inherently different, with some designed to collect higher levels of concentration while others are sensitive to lower concentrations.  
+We hypothesize that the methods are inherently different, with some designed to collect plastics at higher concentrations, while others are more sensitive to lower concentrations.  
 
 
 # 3. Dataset Information
@@ -95,8 +96,8 @@ Detail  | Description
 :-------------: | :-------------:
 Data Source | NOAA NCEI Marine Microplastics
 Retrieved from  | https://www.ncei.noaa.gov/products/microplastics
-Variables, wrangled | Year, Month, Day, Measurement, Unit, Density.Range, Density.Class, Latitude, Longitude
-Date Range, wrangled | April 28, 1972 - February 21, 2014
+Number of Samples | 22,266
+Date Range | April 20, 1972 - November 30, 2022
 
 
 ```{r project.setup, message=FALSE}
@@ -111,6 +112,9 @@ library(mapview)
 library(RColorBrewer)
 
 microplastics_raw <- read.csv(here("Data/NPSG_Microplastics_Raw/NPSG_Marine_Microplastics_WGS84.csv"))
+
+microplastics_raw$Date <- parse_date_time(microplastics_raw$Date, "mdy HMS")
+
 ```
 
 ```{r}
@@ -126,30 +130,27 @@ caption = "Table 2. NOAA NCEI Microplastics data contributors",
 
 ```
 
-
 # 4. Import Libraries and Data Exploration
 
 ## 4.1 Global Data
 
-We can take a glimpse of the dataset.
+The dataset provided data for the following components:
 
 ```{r data exploration 1}
-glimpse(microplastics_raw)
+
+colnames(microplastics_raw)
+
 ```
 
-We notice two important things:   
+We determined that the columns such as references, organization, and DOI were not useful in this study. We thus wrangled the dataset to select only the columns of interest, such as sampling method, measurement, unit, density range, and x-y coordinates.  
 
-1. Columns such as references, organization and DOI are not useful in this study, thus we can wrangle the dataset to select only the columns of interest, such as sampling method, measurement, unit, density range, and x-y coordinates.  
-
-2. The dataset contains multiple sampling methods as we have discussed in the introduction part. This will lead to problems in comparability of data with different measurement units. We should find out how many unique units there are and decide which unit to focus our study on.
+The dataset contains multiple sampling methods, as discussed in the introduction. This creates challenges in the comparing data with different measurement units. For the purpose of this study, we sought to identify unique units of measurement, and focus on one in our analysis.
 
 ```{r data exploration 2}
 summary(as.factor(microplastics_raw$Unit))
 ```
 
-From the metadata given by NOAA, we learned that the unit pieces/10 mins is for nurdle patrols, which involves handpicking plastic pellets along beaches. This falls out of our research scope as it is not data collected in the ocean within the area of interest. Data entries with units being pieces kg-1 dry weight are collected in ocean sediments. For unit consistency, we want to exclude this part of data from the main analysis.  
-
-We can take a further look at the spatial location of the data before proceeding to data wrangling.
+Furthermore, the downloaded dataset contained information from across the globe.
 
 ```{r data exploration 3}
 globalmicroplastics.sf <- microplastics_raw %>% 
@@ -161,40 +162,33 @@ globalmicroplastics.sf <- microplastics_raw %>%
 mapview(globalmicroplastics.sf)
 ```
 
-Initially, worldwide data were extracted to obtain broader information about sampling distribution and differing sample collection methods. We then narrowed our scope to a subset of data within the Pacific Ocean: the North Pacific Subtropical Gyre, known as the Great Pacific Garbage Patch, which ranges from 15°N to 35°N, 135°E to 135°W (Karl, 1999). On NOAA's webpage, by placing filters, we downloaded two new datasets from the East Pacific (east of 180°) and West Pacific (west of 180°), under the name NPSG_East_Marine_Microplastics_WGS84.csv and NPSG_West_Marine_Microplastics_WGS84.csv respectively.
+While the worldwide data allows us to obtain broader information about sampling distribution and differing sample collection methods, we narrowed our scope to a subset of this data: samples collected within the North Pacific Subtropical Gyre, known as the Great Pacific Garbage Patch.
 
 ## North Pacific Subtropical Gyre
 
-```{r data exploration 4, message=FALSE}
-microplastics_east_raw <- read.csv(("Data/NPSG_Microplastics_Raw/NPSG_East_Marine_Microplastics_WGS84.csv"), 
+The Great Pacific Garbage Patch ranges from 15°N to 35°N, 135°E to 135°W (Karl, 1999). By placing filters within NOAA's microplastics tool, two new datasets were selected: one from the East Pacific (east of 180°), and one from the West Pacific (west of 180°), under the name NPSG_East_Marine_Microplastics_WGS84.csv and NPSG_West_Marine_Microplastics_WGS84.csv respectively. These were combined into a single data frame.
+
+For this subset of data, we chose to select only samples collected at the surface by Neuston net, all of which had units of pieces/m^3. Sampling techniques that appeared in the global dataset, like nurdle patrols, in which plastic pellets found along beaches are handpicked and measured in pieces/10 mins, and ocean sediment samples, measured in pieces kg-1 dry weight fell outside of our scope.
+
+From all the available data on the points matching those criteria, the columns for Measurement, Unit, Density Range, Density Class, Latitude, Longitude, and Date were isolated. The Date column was made a date class and separated into day, month, and year. 
+
+
+```{r wrangled data}
+microplastics_byyear <- read.csv((
+  "Data/NPSG_Microplastics_Processed/microplastics_data_wrangling.csv"), 
                           stringsAsFactors = TRUE)
-
-microplastics_west_raw <- read.csv(("Data/NPSG_Microplastics_Raw/NPSG_West_Marine_Microplastics_WGS84.csv"), 
-                          stringsAsFactors = TRUE)
-
-#combine east and west
-
-microplastics_east_west_raw <- rbind(microplastics_east_raw, microplastics_west_raw)
-
-microplastics_select <- microplastics_east_west_raw %>%
-  select(Measurement, Unit, Density.Range, Density.Class, Latitude, Longitude, Date) %>%
-  relocate(Date) %>%
-  relocate(Latitude, .after = Date) %>%
-  relocate(Longitude, .after = Latitude)
-  
-microplastics_date <- separate(microplastics_select, Date, c("Date", "Time"), sep = " ", remove = FALSE)
-
-microplastics_date$Date <- mdy(microplastics_date$Date)
-
-microplastics_byyear <- microplastics_date %>%
-  separate(Date, sep="-", into = c("Year", "Month", "Day")) %>%
-  select(Year,Month,Day,Latitude,Longitude,Measurement,Unit,Density.Range,Density.Class
-  )
-
 ```
 
-Only samples collected by Neuston net were selected, all of which were measured in units of pieces per meter cubed. From all the available data on the points matching those criteria, the columns for Measurement, Unit, Density Range, Density Class, Latitude, Longitude, and Date were isolated. The Date column was made a date class and separated into day, month, and year. 
+Table: Table 3. Wrangled dataset information
 
+Detail  | Description
+:-------------: | :-------------:
+Data Source | NOAA NCEI Marine Microplastics
+File Name | microplastics_data_wrangling.csv
+Retrieved from  | https://www.ncei.noaa.gov/products/microplastics
+Number of Samples | 1,852
+Variables, wrangled | Year, Month, Day, Measurement, Unit, Density.Range, Density.Class, Latitude, Longitude
+Date Range, wrangled | April 28, 1972 - February 21, 2014
 
 <center>
 
@@ -288,7 +282,7 @@ This map indicates the density class of each sample. There is some variation acr
 
 <div style="text-align: center;">
 
-### Other variables: does the amount of plastic differ with time?
+### Plastics over Time
 
 ```{r include = FALSE}
 
@@ -314,94 +308,11 @@ ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
 
 ```
 
-
-At first glance, there appears to be an upward trend in the graph of plastic sample measurement over time. We will investigate the significance of this trend further in our analysis.
+At first glance, there appeared to be an upward trend in the graph of plastic sample measurement over time. We investigated the significance of this trend further in our analysis.
 
 # 5. Analysis
 
-## 5.1 Variability in sampling methods
-
-```{r include = FALSE}
-
-#clean data
-microplastics_raw$Sampling.Method <- as.factor(microplastics_raw$Sampling.Method)
-summary(microplastics_raw$Sampling.Method)
-
-microplastics_raw$Unit <- as.factor(microplastics_raw$Unit)
-summary(microplastics_raw$Unit)
-
-#select sampling method
-microplastics_selected <- microplastics_raw %>% 
-  filter(Sampling.Method == c("Hand picking", "Neuston net", "Manta net", "Grab sample", "PVC cylinder"))
-
-#group by unit
-pieces_per_kg_dw <- microplastics_raw %>% 
-  filter(Unit == "pieces kg-1 d.w.") %>% 
-  group_by(Sampling.Method)
-
-pieces_per_10mins <- microplastics_raw %>% 
-  filter(Unit == "pieces/10 mins") %>% 
-  group_by(Sampling.Method)
-
-pieces_per_m_cube <- microplastics_raw %>% 
-  filter(Unit == "pieces/m3") %>% 
-  group_by(Sampling.Method)
-
-summary(pieces_per_kg_dw$Sampling.Method)
-
-summary(pieces_per_10mins$Sampling.Method)
-
-summary(pieces_per_m_cube$Sampling.Method)
-
-#filter by method
-neuston_net <- pieces_per_m_cube %>% 
-  filter(Sampling.Method == "Neuston net")
-
-sea_pump <- pieces_per_m_cube %>% 
-  filter(Sampling.Method == "Intake seawater pump")
-
-manta_net <- pieces_per_m_cube %>% 
-  filter(Sampling.Method == "Manta net")
-
-van_dorn <- pieces_per_m_cube %>% 
-  filter(Sampling.Method == "Van Dorn sampler")
-
-pvc_cylinder <- pieces_per_m_cube %>% 
-  filter(Sampling.Method == "PVC cylinder")
-
-grab_sample <- pieces_per_m_cube %>% 
-  filter(Sampling.Method == "Grab sample")
-
-#combine
-selected_sampling <- rbind(neuston_net, manta_net,grab_sample, sea_pump, van_dorn, pvc_cylinder)
-selected_sampling$Measurement.log <- log(selected_sampling$Measurement)
-
-```
-
-```{r fig.cap="Sampling Method"}
-
-library(knitr)
-#install.packages("kableExtra")
-library(kableExtra)
-
-kable(summary(microplastics_raw$Sampling.Method),
-  caption = "Table 3. Occurrences of Various Sampling Methods within Global Dataset",
-  col.names = c("Method","Number of Samples"),
-  align = "c")
-
-boxplot_sampling <- ggplot(selected_sampling,
-                  aes(x = Sampling.Method, y = Measurement.log)) +
-  geom_boxplot() +
-  labs(title = "Figure 2. Variations in amount of plastic per sample by sampling method", y = "Amount of Plastic (pieces/m^3)", x = "Sampling Method")
-
-#ARE THE MEASUREMENTS ALL IN PIECES/M3 HERE?
-
-boxplot_sampling
-```
-
-Measurements take by each sampling method.
-
-## 5.2 Plastics and time
+## 5.1 Plastics over Time
 
 ```{r include = FALSE}
 
@@ -412,6 +323,9 @@ NPSG_plastics_latlong <- read.csv(here("Data/NPSG_Microplastics_Processed/microp
 plastics_2000s_latlong <- NPSG_plastics_latlong %>%
   filter(Year==2002 | Year==2003 | Year==2004 | Year==2005 | Year==2006 | Year==2007 | Year==2008 | Year==2009 | Year==2010 | Year==2011 | Year==2012 | Year==2013 | Year==2014)
 
+```
+
+```{r include = FALSE}
 #Regression
 plasticstime.regression <- 
   lm(plastics_2000s_latlong$Measurement ~ 
@@ -426,6 +340,9 @@ plot(plasticstime.regression) #DO WE WANT THESE DISPLAYED??
 
 par(mfrow = c(1,1))
 
+```
+
+```{r include = FALSE}
 #AIC
 
 plasticsAIC <- lm(data = plastics_2000s_latlong, Measurement ~ Year + Month + 
@@ -441,11 +358,17 @@ step(plasticsAIC_best) #year and month are explanatory
 
 ```
 
-Table: Table 3. Generalized Linear Model Analysis
+To further explore the upward trend identified in Figure 1, a linear regression was performed.
 
-Analysis  | P-Value
-:-------------: | :-------------:
-Linear Regression  | 1.284e-05
+```{r}
+
+summary(plasticstime.regression)
+
+```
+
+For this research question, H$_0$ would be that there was no relationship between plastic sample measurement and time. H$_1$ would be that there was a relationship between plastic sample measurement and time. With a p-value of 1.24e-05, less than the 0.05 level of significance, the null hypothesis was rejected. There is a correlation between measurement and time.
+
+To highlight what other variables may have influenced plastic measurements, an AIC analysis was performed.
 
 Table: Table 4. AIC Analysis, formula = Measurement ~ Year + Month + Latitude + Longitude
 
@@ -457,28 +380,13 @@ no change | 1070.6
 - Month | 1076.2
 - Year | 1090.5
 
-```{r include=FALSE}
+The measurement of plastics was compared to the possible explanatory variables: Month, Year, Latitude, and Longitude. The AIC was optimized without inclusion of Longitude, meaning Month, Year, and Latitude were explanatory variables.
 
-summary(plasticstime.regression)
+## 5.2 Time series
 
-cor.test(plastics_2000s_latlong$Measurement, plastics_2000s_latlong$Year)
+After establishing a change in plastic sample measurements over time (Section 5.1), a time series analysis was performed.
 
-plasticsAIC <- lm(data = plastics_2000s_latlong, Measurement ~ Year + Month + 
-              Latitude + Longitude)
-
-#AIC the smaller the better
-
-step(plasticsAIC)
-
-plasticsAIC_best <- lm(data = plastics_2000s_latlong, Measurement ~ Year + Month + Latitude)
-
-step(plasticsAIC_best) #year and month are explanatory
-
-```
-
-P value is less than significance level of 0.05. AIC suggests Month, Year, and Latitude are explanatory variables.
-
-## 5.3 Time series
+First, the data was further wrangled in preparation for a time series analysis. The monthly means were calculated and added to the data frame. The date range was shortened to end December 2012, as only one data point was available for 2014, and there were none for 2013. The values for any months without means were interpolated so that there were no gaps in the data.
 
 ```{r include=FALSE}
 
@@ -493,12 +401,12 @@ plastic_monthly_summ <- plastic_monthly_means %>%
   group_by(Year,Month,monthly.mean)%>%
   summarize()
 
-write.csv(plastic_monthly_summ,"Data/NPSG_Microplastics_Processed/plastic_monthly_summ.csv")
-
 plastics_monthly_summ_nas <- read.csv('Data/NPSG_Microplastics_Processed/plastic_monthly_summ_nas.csv')
 
 #removed 2014, only one data point and none for 2013
+```
 
+```{r include = FALSE}
 monthly_clean <- 
   plastics_monthly_summ_nas %>% 
   mutate(monthly.clean = zoo::na.approx(plastics_monthly_summ_nas$monthly.mean, rule = 2))%>%
@@ -522,6 +430,8 @@ plot(plastic.monthly.decomposed)
 
 ```
 
+Upon decomposition of the time series, the trends in the data could be identified. Between 2002 and 2012, the amount of plastics per sample was generally stable except for two slight increases and subsequent decreases around 2008 and 2010, up until a sharp increase in 2012. The decomposition also indicated that there was a seasonal trend to the data. 
+
 ```{r include=FALSE}
 plastics.Components <- as.data.frame(plastic.monthly.decomposed$time.series[,1:3])
 
@@ -536,17 +446,20 @@ plastics.Components.date <- plastics.Components %>%
   mutate(Date = make_date(Year, Month))%>%
   select(seasonal,trend,remainder,Observed,Date)
 
-# Visualize how the trend maps onto the data
-ggplot(plastics.Components.date) +
-  geom_line(aes(y = Observed, x = Date), color = 'blue') +
-  geom_line(aes(y = trend, x = Date), color = 'red')
+```
 
-# Visualize how the seasonal cycle maps onto the data
+```{r}
+
 ggplot(plastics.Components.date) +
-  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
-  geom_line(aes(y = seasonal, x = Date), color = "#c13d75ff")
+  geom_line(aes(y = Observed, x = Date, color='Observed')) +
+  geom_line(aes(y = trend, x = Date, color = 'Time Series Trend')) + 
+              labs(title = "Figure 4. Trend of observed data over time", y = "Amount of Plastic (pieces/m^3)", colour = "Value")
 
 ```
+
+A seasonal Mann Kendall test was performed to inspect the significance of the trend in measurement over time while accounting for the data's seasonality.
+
+H$_0$ would be that there was no monotonic trend in the data. H$_1$ would be that there was a monotonic trend in the data. 
 
 ```{r include = FALSE}
 
@@ -558,6 +471,19 @@ summary(plastics_mannkendall_trend)
 
 #no significant seasonal monotonic trend
 
+```
+
+```{r}
+
+summary(plastics_mannkendall_trend)
+
+```
+
+The results of the test gave a p-value of 0.11049, which was greater than the significance level of 0.05, indicating that there was no significant monotonic trend in the data.
+
+The seasonal variation was then removed from observed values to identify if there was a significant trend independent of seasonal effects. 
+
+```{r include = FALSE}
 plastics.Components.date <- mutate(plastics.Components.date,
         NoSeason = (plastics.Components.date$Observed - plastics.Components.date$seasonal))
 
@@ -571,26 +497,18 @@ summary(noseason.trend)
 
 ```
 
-```{r fig.cap="Seasonality removed"}
+```{r fig.cap="Figure 3. Observed values compared to values with seasonality removed."}
 
 ggplot(plastics.Components.date) +
   geom_line(aes(y = NoSeason, x = Date, color = "Seasonality Removed"))+
   geom_line(aes(y = Observed, x = Date, color = "Observed"))+
-  labs(title = "Figure 4. Observed values compared to values with seasonality removed", y = "Measurement (pieces/m^3)", x = "Year")
+  labs(title = "Figure 5. Observed values compared to values with seasonality removed", y = "Measurement (pieces/m^3)", x = "Year", colour = 'Value')
 
-#IS THIS STILL IN PIECES/M3??
-
-```
-
-```{r include=FALSE}
-
-plastics_mannkendall_trend
-summary(plastics_mannkendall_trend)
-
-noseason.trend
 summary(noseason.trend)
 
 ```
+
+Running a non-seasonal Mann Kendall test revealed that the trend was still not significant, with a p-value of 0.069721, which was greater than the 0.05 level of significance. 
 
 Table: Table 5. Trend Analyses
 
@@ -599,10 +517,94 @@ Analysis  | 2-sided P-Value
 Seasonal Mann-Kendall  | 0.11049
 Non-Seasonal Mann-Kendall | 0.069721
 
-Interpolated values across the years. Time series analysis, there does seem to be seasonality. The trend has a stronger increase in later years.
+Interestingly, the linear regression indicated there was a significant trend over time, while the time series analyses indicated that there was not. The data frame used for the linear regression, however, included more unique values as monthly values had not been averaged, and more years had been included. To experimentally investigate this, a linear regression was executed to assess the monthly mean values, included interpolations, by year. 
+
+```{r}
+
+timeseriesdates.regression <- 
+  lm(monthly_clean$monthly.clean ~ 
+       monthly_clean$Year)
+
+summary(timeseriesdates.regression)
+
+```
+
+The p-value was 0.0006911, which was less than the 0.05 level of significance, indicating that there was a significant trend. The differences between the results of these analyses must come down to the specialization of the Mann Kendall test to testing trends over time.
+
+
+## 5.3 Difference in Sampling Methods
+
+The number of data points collected by each of the sampling methods was analyzed.
+
+```{r R3 exploration 1}
+
+summary(microplastics_raw$Sampling.Method)
+```
+
+Differences between the 27 sampling methods (plankton net and Plankton net should be combined as one method) were examined by subsetting the dataset based on their units, allowing identification of the methods used for each data collection purpose.
+
+```{r R3 exploration 2}
+pieces_per_kg_dw <- microplastics_raw %>% 
+  filter(Unit == "pieces kg-1 d.w.") %>% 
+  group_by(Sampling.Method)
+
+pieces_per_10mins <- microplastics_raw %>% 
+  filter(Unit == "pieces/10 mins") %>% 
+  group_by(Sampling.Method)
+
+pieces_per_m_cube <- microplastics_raw %>% 
+  filter(Unit == "pieces/m3") %>% 
+  group_by(Sampling.Method)
+
+summary(pieces_per_kg_dw$Sampling.Method)
+```
+
+To measure the concentration of plastic in ocean sediments, methods such as the Ekman dredge, shovel, megacorer, petite ponar benthic grab, remotely operated vehicle, sediment grab sampler, day grab, metal spoon, and Van Veen grab sampler were applied.
+
+Next, the sampling methods employed in nurdle patrols were examined.
+
+```{r R3 exploration 3}
+summary(pieces_per_10mins$Sampling.Method)
+```
+For nurdle patrol purposes, only the hand-picking method was utilized.
+
+```{r R3 exploration 4}
+summary(pieces_per_m_cube$Sampling.Method)
+```
+
+A total of 18 methods were used to measure the concentration of microplastics in water. This analysis focused on the dominant collection methods, defined as those with a sample size greater than 200: hand picking, Neuston net, Manta net, grab sample, PVC cylinder, and intake seawater pump.
+
+The measurement values were log-transformed to allow better comparison across different measurement magnitudes.
+
+```{r R3 wrangling}
+methods_selected <- microplastics_raw %>% 
+  filter(Sampling.Method == c("Hand picking", "Neuston net", 
+                              "Manta net", "Grab sample", 
+                              "PVC cylinder", "Intake seawater pump"))
+methods_selected$Measurement.log <- log(methods_selected$Measurement)
+```
+
+A boxplot was plotted to compare the log-transformed measurements [log(pieces/m^3)] for each sampling method.
+
+```{r R3 boxplot fig.cap='Figure 3. Sampling method comparison'}
+ggplot(methods_selected, aes(x = Sampling.Method, y = Measurement)) +
+  geom_boxplot() +
+  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = scales::trans_format("log10", 
+                                              scales::math_format(10^.x))) +
+  labs(title = "Figure 3. Sampling method comparison", 
+       y = expression(Measurement ~ (log[pieces / m^3]))) +
+  xlab(NULL) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+For this research question, the null hypothesis (H$_0$) would be that there was no difference in the amount of plastic collected between various sampling methods. The alternative hypothesis (H$_1$) would be that there was a difference in the amount of plastic collected between various sample methods. 
+
+The boxplot indicated that there was significant variability in measurement values across the sampling methods. The PVC cylinder method had higher median measurements compared to other methods, while grab sample and Neuston net had medians lower than 0.1.  
+
+Hand picking, grab sample, and PVC cylinder had relatively narrow boxes, suggesting lower variability in measurements. Outliers could be observed in methods such as Neuston net and grab sample, indicating occasional extreme values in these datasets.  
 
 # 6. Summary and Conclusions
 
-```
 
 
