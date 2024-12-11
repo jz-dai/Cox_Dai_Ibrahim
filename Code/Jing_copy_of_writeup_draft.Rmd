@@ -70,7 +70,48 @@ Finally, studying plastic collection fosters continuous improvement. Feedback fr
 
 # 2. Research Question
 
+We are interested in the spatial and temporal patterns of the plastic pollution level within the Great Pacific Garbage Patch. Our research thus focuses on two overarching questions: 
+
+1. **Spatial distribution**: Where within the Great Pacific Garbage Patch is microplastic pollution the most concentrated? 
+
+2. **Temporal pattern**: How have the pollution levels changed throughout the years? 
+
+Regarding the first research question, acknowledging convergent zone within the North Pacific Subtropical Gyre, we hypothesize that the microplastic concentration is highest at the center of the Garbage Patch. The null hypothesis is that the distribution is random throughout the NPSG.  
+
+For the second research question, our pessimistic alternative hypothesis is that plastic pollution levels demonstrate an increasing trend over time, driven by global mass consumption. The null hypothesis predicts that the pollution level fluctuates and does not reflect a fixed pattern. 
+
+In addition to the main quest, we are also curious about the **differences among various data collection methods**, therefore we want to have a third research question: 
+3. Based on the measured concentration level, are sampling methods different from one another? 
+
+We hypothesize that the methods are inherently different, with some designed to collect higher levels of concentration while others are sensitive to lower concentrations.  
+
+
 # 3. Dataset Information
+
+The data used in this study were extracted from the National Oceanic and Atmospheric Administration (NOAA) National Centers for Environmental Information (NCEI) Marine Microplastics Map Portal. This resource serves as a repository for datasets from research cruises and field work conducted by various researchers and institutions from around the world. NOAA enables users to freely export data from the portal. We exported all available 22,266 entries of microplastic data as csv files, stored under Data/NPSG_Microplastics_Raw/NPSG_Marine_Microplastics_WGS84.csv.  
+
+
+# 4. Import Libraries and Data
+
+```{r project.setup, message=FALSE}
+library(tidyverse)
+library(here)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(sf)
+library(leaflet)
+library(mapview)
+library(RColorBrewer)
+```
+
+
+
+Initially, worldwide data were extracted to obtain broader information about sampling distribution and differing sample collection methods. We then narrowed our scope to a subset of data within the Pacific Ocean: the North Pacific Subtropical Gyre, known as the Great Pacific Garbage Patch, which ranges from 15°N to 35°N, 135°E to 135°W (Karl, 1999).   
+
+Only samples collected by Neuston net were selected, all of which were measured in units of pieces per meter cubed. The datasets from the East Pacific (east of 180°) and West Pacific (west of 180°) were downloaded separately and combined. From all the available data on the points matching those criteria, the columns for Measurement, Unit, Density Range, Density Class, Latitude, Longitude, and Date were isolated. The Date column was made a date class and separated into day, month, and year. 
+
+
 
 Table: Table 1. Dataset information
 
@@ -94,7 +135,7 @@ library(mapview)
 library(RColorBrewer)
 
 # importing dataset
-microplastics <- read.csv(here("Data/NPSG_Microplastics_Raw/Marine_microplastics.csv"))
+microplastics <- read.csv(here("Data/NPSG_Microplastics_Raw/NPSG_Marine_Microplastics_WGS84.csv"))
 
 library(kableExtra)
 
@@ -118,7 +159,7 @@ caption = "Table 2. NOAA NCEI Microplastics data contributors",
 globalmicroplastics.sf <- microplastics %>% 
   st_as_sf(
     coords = c('Longitude','Latitude'),
-    crs=4269)
+    crs=4326)
 
 mapview(globalmicroplastics.sf) #I'm confused here
 
