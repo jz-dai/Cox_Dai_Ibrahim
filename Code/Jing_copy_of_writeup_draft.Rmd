@@ -10,7 +10,7 @@ output:
 \listoftables
 \listoffigures
 
-```{r knitting options include=FALSE}
+```{r knitting options, include=FALSE}
 
 knitr::opts_chunk$set(
   echo = FALSE,
