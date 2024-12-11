@@ -118,7 +118,9 @@ library(leaflet)
 library(mapview)
 library(RColorBrewer)
 
-microplastics_raw <- read.csv(here("Data/NPSG_Microplastics_Raw/NPSG_Marine_Microplastics_WGS84.csv"))
+microplastics_raw <- read.csv(here(
+  "Data/NPSG_Microplastics_Raw/NPSG_Marine_Microplastics_WGS84.csv"),
+  stringsAsFactors = TRUE)
 ```
 
 We can taka a glimpse of the dataset.
@@ -222,3 +224,77 @@ File Name | microplastics_data_wrangling.csv
 Retrieved from  | https://www.ncei.noaa.gov/products/microplastics
 Variables, wrangled | Year, Month, Day, Measurement, Unit, Density.Range, Density.Class, Latitude, Longitude
 Date Range, wrangled | April 28, 1972 - February 21, 2014
+
+
+
+
+
+
+## Research Question 3: Sampling Methods Difference
+
+The number of data points collected by each of the sampling methods was analyzed.
+
+```{r R3 exploration 1}
+summary(microplastics_raw$Sampling.Method)
+```
+
+Differences between the 27 sampling methods (plankton net and Plankton net should be combined as one method) were examined by subsetting the dataset based on their units, allowing identification of the methods used for each data collection purpose.
+
+```{r R3 exploration 2}
+pieces_per_kg_dw <- microplastics_raw %>% 
+  filter(Unit == "pieces kg-1 d.w.") %>% 
+  group_by(Sampling.Method)
+
+pieces_per_10mins <- microplastics_raw %>% 
+  filter(Unit == "pieces/10 mins") %>% 
+  group_by(Sampling.Method)
+
+pieces_per_m_cube <- microplastics_raw %>% 
+  filter(Unit == "pieces/m3") %>% 
+  group_by(Sampling.Method)
+
+summary(pieces_per_kg_dw$Sampling.Method)
+```
+To measure the concentration of plastic in ocean sediments, methods such as the Ekman dredge, shovel, megacorer, petite ponar benthic grab, remotely operated vehicle, sediment grab sampler, day grab, metal spoon, and Van Veen grab sampler are applied.
+
+Next, the sampling methods employed in nurdle patrols are examined.
+
+```{r R3 exploration 3}
+summary(pieces_per_10mins$Sampling.Method)
+```
+For nurdle patrol purposes, only the hand-picking method is utilized.
+
+```{r R3 exploration 4}
+summary(pieces_per_m_cube$Sampling.Method)
+```
+
+A total of 18 methods are used to measure the concentration of microplastics in water. This analysis focuses on the dominant collection methods, defined as those with a sample size greater than 200: hand picking, Neuston net, Manta net, grab sample, PVC cylinder, and intake seawater pump.
+
+The measurement values are log-transformed to allow better comparison across different measurement magnitudes.
+
+```{r R3 wrangling}
+methods_selected <- microplastics_raw %>% 
+  filter(Sampling.Method == c("Hand picking", "Neuston net", 
+                              "Manta net", "Grab sample", 
+                              "PVC cylinder", "Intake seawater pump"))
+methods_selected$Measurement.log <- log(methods_selected$Measurement)
+```
+
+A boxplot was plotted to compare the log-transformed measurements [log(pieces/m^3)] for each sampling method.
+
+```{r R3 boxplot}
+ggplot(methods_selected, aes(x = Sampling.Method, y = Measurement)) +
+  geom_boxplot() +
+  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = scales::trans_format("log10", 
+                                              scales::math_format(10^.x))) +
+  labs(title = "Sampling method comparison", 
+       y = expression(Measurement ~ (log[pieces / m^3]))) +
+  xlab(NULL) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+There is significant variability in measurement values across the sampling methods. PVC cylinder method has higher median measurements compared to other methods, while grab sample and Neuston net have medians lower than 0.1.  
+
+Hand picking, grab sample, and PVC cylinder have relatively narrow boxes, suggesting lower variability in measurements. Outliers can be observed in methods such as Neuston net and Grab sample, indicating occasional extreme values in these datasets.  
+
+
