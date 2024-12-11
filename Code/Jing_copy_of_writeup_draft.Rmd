@@ -10,7 +10,7 @@ output:
 \listoftables
 \listoffigures
 
-```{r include=FALSE}
+```{r knitting options include=FALSE}
 
 knitr::opts_chunk$set(
   echo = FALSE,
@@ -19,7 +19,6 @@ knitr::opts_chunk$set(
   fig.align = "center",
   fig.width = 8
 )
-
 ```
 
 # 1. Project Introduction
@@ -91,7 +90,7 @@ We hypothesize that the methods are inherently different, with some designed to 
 The data used in this study were extracted from the National Oceanic and Atmospheric Administration (NOAA) National Centers for Environmental Information (NCEI) Marine Microplastics Map Portal. This resource serves as a repository for datasets from research cruises and field work conducted by various researchers and institutions from around the world. NOAA enables users to freely export data from the portal. We exported all available 22,266 entries of microplastic data as csv files, stored under Data/NPSG_Microplastics_Raw/NPSG_Marine_Microplastics_WGS84.csv.  
 
 
-# 4. Import Libraries and Data
+# 4. Import Libraries and Data Exploration
 
 ```{r project.setup, message=FALSE}
 library(tidyverse)
@@ -103,14 +102,53 @@ library(sf)
 library(leaflet)
 library(mapview)
 library(RColorBrewer)
+
+microplastics_raw <- read.csv(here("Data/NPSG_Microplastics_Raw/NPSG_Marine_Microplastics_WGS84.csv"))
+```
+
+We can taka a glimpse of the dataset.
+
+```{r data exploration 1}
+glimpse(microplastics_raw)
+```
+
+We can notice two important things:   
+
+1. Columns such as references, organization and DOI are not useful in this study, thus we can wrangle the dataset to select only the columns of interest, such as sampling method, measurement, unit, density range, and x-y coordinates.  
+
+2. The dataset contains multiple sampling methods as we have discussed in the introduction part. This will lead to problems in comparability of data with different measurement units. We should find out how many unique units there are and decide which unit to focus our study on.
+
+```{r data exploration 2}
+summary(as.factor(microplastics_raw$Unit))
+```
+
+From the metadata given by NOAA, we learned that the unit pieces/10 mins is for nurdle patrols, which involves handpicking plastic pellets along beaches. This falls out of our research scope as it is not data collected in the ocean within the area of interest. Data entries with units being pieces kg-1 dry weight are collected in ocean sediments. For unit consistency, we want to exclude this part of data from the main analysis.  
+
+We can take a further look at the spatial location of the data before proceeding to data wrangling.
+
+```{r data exploration 3}
+globalmicroplastics.sf <- microplastics_raw %>% 
+  st_as_sf(
+    coords = c('Longitude','Latitude'),
+    crs=4326 # corresponding crs for WGS84
+    )
+
+mapview(globalmicroplastics.sf)
+```
+
+Initially, worldwide data were extracted to obtain broader information about sampling distribution and differing sample collection methods. We then narrowed our scope to a subset of data within the Pacific Ocean: the North Pacific Subtropical Gyre, known as the Great Pacific Garbage Patch, which ranges from 15°N to 35°N, 135°E to 135°W (Karl, 1999). On NOAA's webpage, by placing filters, we downloaded two new datasets from the East Pacific (east of 180°) and West Pacific (west of 180°), under the name NPSG_East_Marine_Microplastics_WGS84.csv and NPSG_West_Marine_Microplastics_WGS84.csv respectively.
+
+```{r data exploration 4}
+microplastics_east_raw <- read.csv(("Data/NPSG_Microplastics_Raw/NPSG_East_Marine_Microplastics_WGS84.csv"), 
+                          stringsAsFactors = TRUE)
+
+microplastics_west_raw <- read.csv(("Data/NPSG_Microplastics_Raw/NPSG_West_Marine_Microplastics_WGS84.csv"), 
+                          stringsAsFactors = TRUE)
 ```
 
 
 
-Initially, worldwide data were extracted to obtain broader information about sampling distribution and differing sample collection methods. We then narrowed our scope to a subset of data within the Pacific Ocean: the North Pacific Subtropical Gyre, known as the Great Pacific Garbage Patch, which ranges from 15°N to 35°N, 135°E to 135°W (Karl, 1999).   
-
-Only samples collected by Neuston net were selected, all of which were measured in units of pieces per meter cubed. The datasets from the East Pacific (east of 180°) and West Pacific (west of 180°) were downloaded separately and combined. From all the available data on the points matching those criteria, the columns for Measurement, Unit, Density Range, Density Class, Latitude, Longitude, and Date were isolated. The Date column was made a date class and separated into day, month, and year. 
-
+Only samples collected by Neuston net were selected, all of which were measured in units of pieces per meter cubed. From all the available data on the points matching those criteria, the columns for Measurement, Unit, Density Range, Density Class, Latitude, Longitude, and Date were isolated. The Date column was made a date class and separated into day, month, and year. 
 
 
 Table: Table 1. Dataset information
