@@ -123,7 +123,7 @@ microplastics_raw <- read.csv(here(
   stringsAsFactors = TRUE)
 ```
 
-We can taka a glimpse of the dataset.
+We explored the dataset through 
 
 ```{r data exploration 1}
 glimpse(microplastics_raw)
