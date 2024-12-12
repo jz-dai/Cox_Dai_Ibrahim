@@ -1,14 +1,32 @@
 ---
-title: "writeup_draft"
-author: "Becca Cox"
+title: "ENVIRON 872 Final Project"
+author: "Rebecca Cox, Jingze Dai, and Mason Ibrahim"
 date: "2024-12-04"
 output: 
   html_document:
     toc: TRUE
-  
-  ---
-\listoftables
-\listoffigures
+
+## List of Tables
+
+1. **Table 1**: Dataset information.
+2. **Table 2**: NOAA NCEI Microplastics data contributors.
+3. **Table 3**: Wrangled dataset information.
+4. **Table 4**: AIC Analysis, formula = Measurement ~ Year + Month + Latitude + Longitude.
+5. **Table 5**: Trend Analyses.
+
+## List of Figures
+
+1. **Figure 1**: Measured plastic per sample over time.
+2. **Figure 2**: Decomposition of time series.
+3. **Figure 3**: Trend of observed data over time.
+4. **Figure 4**: Observed values compared to values with seasonality removed.
+5. **Figure 5**: Sampling method comparison.
+
+## List of Maps
+
+1. **Map 1**: Global microplastics data.
+2. **Map 2**: Neuston net samples collected within the Great Pacific Garbage Patch.
+3. **Map 3**: Density class of Neuston net samples in the Great Pacific Garbage Patch.
 
 ---
 
@@ -28,11 +46,10 @@ knitr::opts_chunk$set(
 
 **The Great Pacific Garbage Patch**  
 
+The Great Pacific Garbage Patch is created by the accumulation of marine debris due to the pattern of the currents in the North Pacific Subtropical Gyre. These currents form a large vortex that spans an area approximately twice the size of Texas, trapping debris within its rotation. The Garbage Patch itself is made up of two smaller patches: one near Japan and another between Hawaii and California ("Great Pacific Garbage Patch," 2024).  
 
-The North Pacific Gyre is created by ocean currents connecting two smaller garbage patches: one near Japan and another between Hawaii and California. These currents form a large vortex that spans an area approximately twice the size of Texas, trapping debris within its rotation (2024).  
 
-
-The Great Pacific Garbage Patch, part of this gyre, is not a solid island of trash but a massive area of polluted ocean. It is dominated by microplastics, with concentrations of up to 1.9 million pieces per square mile. Larger items, such as abandoned fishing nets, plastic containers, and buoys, are also present, with pollution stretching over 2,000 miles (Wang, 2020).  
+Contrary to popular belief, the Great Pacific Garbage Patch is not a solid island of trash, but a massive area of polluted ocean. It is dominated by microplastics, with concentrations of up to 1.9 million pieces per square mile. Larger items, such as abandoned fishing nets, plastic containers, and buoys, are also present, with pollution stretching over 2,000 miles (Wang, 2020).  
 
 
 Marine debris has severe consequences for marine life. Sea turtles mistake plastic bags for food, while birds feed plastic fragments to their chicks, causing injury or starvation. Marine mammals are at risk of becoming entangled in discarded fishing nets, often drowning in a process known as ghost fishing (Wright, 2023).  
@@ -44,7 +61,7 @@ This debris also disrupts the marine food web. Microplastics and other trash blo
 Plastics exacerbate these problems by releasing harmful chemicals, such as BPA, as they degrade. They also absorb pollutants like PCBs from seawater, introducing these toxins into the food chain when consumed by marine animals (Wright, 2023).  
 
 
-**Methods of Microplastic Collections**   
+**Methods of Microplastic Collection**   
 
 
 Organizations like The Ocean Cleanup are actively working to remove waste from high-pollution areas such as the Great Pacific Garbage Patch. Their efforts focus on innovative strategies to extract plastic debris and reduce the environmental impact of marine pollution.  
@@ -53,8 +70,7 @@ Organizations like The Ocean Cleanup are actively working to remove waste from h
 To address the vast amounts of trash, multiple methods are employed, each tailored to target different types of debris. Hand picking is used for larger, visible items, such as fishing nets and containers. For microplastics and smaller debris, specialized tools are implemented.  
 
 
-The Neuston net, a fine mesh net traditionally used in oceanography, collects samples from the ocean's surface. Its improved counterpart, the Manta net, allows for continuous-flow collection, increasing efficiency. Grab sampling involves collecting known volumes of surface water using glass containers, ensuring all microplastics within the sample are captured. For debris embedded in coastal sands, a PVC cylinder is utilized to extract sand samples for analysis and cleanup.  
-
+The Neuston net, a fine mesh net commonly used in oceanographic research, collects samples from the ocean's surface. Its improved counterpart, the Manta net, allows for continuous-flow collection, increasing efficiency. Grab sampling involves collecting known volumes of surface water using glass containers, ensuring all microplastics within the sample are captured. For debris embedded in coastal sands, a PVC cylinder is utilized to extract sand samples for analysis and cleanup.  
 
 By combining these approaches, organizations are making strides in tackling marine pollution while contributing to scientific understanding of its composition and distribution.  
 
@@ -70,28 +86,28 @@ Furthermore, the information gathered plays a critical role in shaping global po
 
 Finally, studying plastic collection fosters continuous improvement. Feedback from data collection enables the optimization of technologies and methodologies, making future cleanup operations more efficient and impactful. This research not only contributes to the current fight against marine pollution but also lays the groundwork for more sustainable solutions.  
 
-# 2. Research Question
+# 2. Research Questions
 
-We are interested in the spatial and temporal patterns of the plastic pollution level within the Great Pacific Garbage Patch. Our research thus focuses on two overarching questions: 
+In this study, we investigated the spatial and temporal patterns of plastic pollution within the Great Pacific Garbage Patch. Our research focused on two overarching questions: 
 
-1. **Spatial distribution**: Where within the Great Pacific Garbage Patch is microplastic pollution the most concentrated? 
+1. **Spatial distribution**: Where within the Great Pacific Garbage Patch was microplastic pollution the most concentrated? 
 
 2. **Temporal pattern**: How have the pollution levels changed throughout the years? 
 
-Regarding the first research question, acknowledging convergent zone within the North Pacific Subtropical Gyre, we hypothesize that the microplastic concentration is highest at the center of the Garbage Patch. The null hypothesis is that the distribution is random throughout the NPSG.  
+Regarding the first research question, in acknowledgement of the convergent zone within the North Pacific Subtropical Gyre, we hypothesized that microplastic concentrations were highest at the center of the Garbage Patch. The null hypothesis was that the distribution was random throughout the NPSG.  
 
-For the second research question, our pessimistic alternative hypothesis is that plastic pollution levels demonstrate an increasing trend over time, driven by global mass consumption. The null hypothesis predicts that the pollution level fluctuates and does not reflect a fixed pattern. 
+For the second research question, our alternative hypothesis was that plastic pollution levels demonstrated an increasing trend over time, driven by global mass consumption. The null hypothesis predicted that the pollution level fluctuated and did not reflect a fixed pattern. 
 
-In addition to these main questions, we also seek to explore **differences among various data collection methods**, hence adding our third research question: 
+In addition to these main questions, we also sought to explore **differences among various data collection methods**, leading to our third research question: 
 
-3. Based on the measured concentration level, are sampling methods different from one another? 
+3. Based on the measured concentration level, were sampling methods different from one another? 
 
-We hypothesize that the methods are inherently different, with some designed to collect plastics at higher concentrations, while others are more sensitive to lower concentrations.  
+We hypothesized that the methods were inherently different, with some designed to collect plastics at higher concentrations, while others were more sensitive to lower concentrations.  
 
 
 # 3. Dataset Information
 
-The data used in this study were extracted from the National Oceanic and Atmospheric Administration (NOAA) National Centers for Environmental Information (NCEI) Marine Microplastics Map Portal. This resource serves as a repository for datasets from research cruises and field work conducted by various researchers and institutions from around the world. NOAA enables users to freely export data from the portal. We exported all available 22,266 entries of microplastic data as csv files, stored under Data/NPSG_Microplastics_Raw/NPSG_Marine_Microplastics_WGS84.csv.  
+The data used in this study were extracted from the National Oceanic and Atmospheric Administration (NOAA) National Centers for Environmental Information (NCEI) Marine Microplastics Map Portal. This resource serves as a repository for datasets from research cruises and field work conducted by various researchers and institutions from around the world. NOAA enables users to freely export data from the portal.  
 
 
 Table: Table 1. Dataset information
@@ -99,6 +115,7 @@ Table: Table 1. Dataset information
 Detail  | Description
 :-------------: | :-------------:
 Data Source | NOAA NCEI Marine Microplastics
+File Name | NPSG_Marine_Microplastics_WGS84.csv
 Retrieved from  | https://www.ncei.noaa.gov/products/microplastics
 Number of Samples | 22,266
 Date Range | April 20, 1972 - November 30, 2022
@@ -134,11 +151,11 @@ caption = "Table 2. NOAA NCEI Microplastics data contributors",
 
 ```
 
-# 4. Import Libraries and Data Exploration
+# 4. Data Exploration
 
 ## 4.1 Global Data
 
-The dataset provided data for the following components:
+The dataset provided data on the following components:
 
 ```{r data exploration 1}
 
@@ -148,14 +165,12 @@ colnames(microplastics_raw)
 
 We determined that the columns such as references, organization, and DOI were not useful in this study. We thus wrangled the data set to select only the columns of interest, such as sampling method, measurement, unit, density range, and x-y coordinates.  
 
-The data set contains multiple sampling methods, as discussed in the introduction. This creates challenges in the comparing data with different measurement units. For the purpose of this study, we sought to identify unique units of measurement, and focus on one in our analysis.
+The data set contained multiple sampling methods, as discussed in the introduction. This created challenges in comparing data with different measurement units. For the purpose of this study, we identified the unique units of measurement, and focused on just one in our analysis.
 
 ```{r data exploration 2}
 summary(as.factor(microplastics_raw$Unit))
 ```
 
-
-We can take a further look at the spatial location of the data before proceeding to data wrangling.
 Furthermore, the downloaded dataset contained information from across the globe.
 
 ```{r data exploration 3}
@@ -168,16 +183,56 @@ globalmicroplastics.sf <- microplastics_raw %>%
 mapview(globalmicroplastics.sf)
 ```
 
-While the worldwide data allows us to obtain broader information about sampling distribution and differing sample collection methods, we narrowed our scope to a subset of this data: samples collected within the North Pacific Subtropical Gyre, known as the Great Pacific Garbage Patch.
+Map 1. Global microplastics data.
+
+While the worldwide data allowed us to obtain broader information about sampling distribution and differing sample collection methods, we chose to narrow our scope to a subset of this data: samples collected within the North Pacific Subtropical Gyre, known as the Great Pacific Garbage Patch.
 
 ## North Pacific Subtropical Gyre
 
-The Great Pacific Garbage Patch ranges from 15°N to 35°N, 135°E to 135°W (Karl, 1999). By placing filters within NOAA's microplastics tool, two new datasets were selected: one from the East Pacific (east of 180°), and one from the West Pacific (west of 180°), under the name NPSG_East_Marine_Microplastics_WGS84.csv and NPSG_West_Marine_Microplastics_WGS84.csv respectively. These were combined into a single data frame.
+The Great Pacific Garbage Patch ranges from 15°N to 35°N, 135°E to 135°W (Karl, 1999). Two new datasets were selected in NOAA's Microplastics Portal: one from the East Pacific (east of 180°), and one from the West Pacific (west of 180°), under the name NPSG_East_Marine_Microplastics_WGS84.csv and NPSG_West_Marine_Microplastics_WGS84.csv respectively. These were combined into a single data frame.
 
-For this subset of data, we chose to select only samples collected at the surface by Neuston net, all of which had units of pieces/m^3. Sampling techniques that appeared in the global dataset, like nurdle patrols, in which plastic pellets found along beaches are handpicked and measured in pieces/10 mins, and ocean sediment samples, measured in pieces kg-1 dry weight fell outside of our scope.
+
+```{r data exploration 4, include = FALSE}
+microplastics_east_raw <- read.csv((
+  "Data/NPSG_Microplastics_Raw/NPSG_East_Marine_Microplastics_WGS84.csv"), 
+                          stringsAsFactors = TRUE)
+
+microplastics_west_raw <- read.csv((
+  "Data/NPSG_Microplastics_Raw/NPSG_West_Marine_Microplastics_WGS84.csv"), 
+                          stringsAsFactors = TRUE)
+# combining datasets
+microplastics_east_west_raw <- rbind(
+  microplastics_east_raw, microplastics_west_raw)
+```
+
+For this subset of data, we chose to select only samples collected at the surface by Neuston net in order to have uniform units of pieces/m$^3$.
 
 From all the available data on the points matching those criteria, the columns for Measurement, Unit, Density Range, Density Class, Latitude, Longitude, and Date were isolated. The Date column was made a date class and separated into day, month, and year. 
 
+
+```{r data wrangling, include=FALSE}
+# selecting columns of interest
+microplastics_select <- microplastics_east_west_raw %>%
+  select(
+    Measurement, Unit, Density.Range, Density.Class, Latitude, Longitude, Date
+    ) %>%
+  relocate(Date) %>%
+  relocate(Latitude, .after = Date) %>%
+  relocate(Longitude, .after = Latitude)
+
+# organizing the date of the data
+microplastics_date <- separate(microplastics_select, Date, 
+                               c("Date", "Time"), sep = " ", remove = FALSE)
+microplastics_date$Date <- mdy(microplastics_date$Date)
+
+microplastics_byyear <- microplastics_date %>%
+  separate(Date, sep="-", into = c("Year", "Month", "Day")) %>%
+  select(
+    Year,Month,Day,Latitude,Longitude,Measurement,
+    Unit,Density.Range,Density.Class
+  )
+
+```
 
 ```{r wrangled data}
 microplastics_byyear <- read.csv((
@@ -213,8 +268,7 @@ mapview(NPSG_plastics)
 
 </center>
 
-
-This map respresents all Neuston net samples collected within the Great Pacific Garbage Patch.
+Map 2. Neuston net samples collected within the Great Pacific Garbage Patch.
 
 <style>
 .centered {
@@ -279,14 +333,9 @@ leaflet(data = NPSG_plastics) %>%
 
 ```
 
-</div>
+Map 3. Density class of Neuston net samples in the Great Pacific Garbage Patch.
 
-
-
-This map indicates the density class of each sample. There is some variation across the gyre, with more medium-high values to the northwest, and more low-very low values to the southeast. In our analysis, we will investigate if latitude and/or longitude play a role in the sample measurement size.
-
-
-<div style="text-align: center;">
+There was some variation in density across the gyre, with more medium-high values to the northwest, and more low-very low values to the southeast. In our analysis, we investigated if latitude and/or longitude played a role in the sample measurement size (Section 5.1).
 
 ### Plastics over Time
 
@@ -314,7 +363,7 @@ ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
 
 ```
 
-At first glance, there appeared to be an upward trend in the graph of plastic sample measurement over time. We investigated the significance of this trend further in our analysis.
+At first glance, there appeared to be an upward trend in the graph of plastic sample measurement over time. We investigated the significance of this trend further in our analysis (Section 5.1).
 
 # 5. Analysis
 
@@ -343,7 +392,7 @@ summary(plasticstime.regression) #p value is <0.05
 # Correlation
 cor.test(plastics_2000s_latlong$Measurement, plastics_2000s_latlong$Year)
 
-plot(plasticstime.regression) #DO WE WANT THESE DISPLAYED??
+plot(plasticstime.regression)
 
 par(mfrow = c(1,1))
 
@@ -373,7 +422,7 @@ summary(plasticstime.regression)
 
 ```
 
-For this research question, H$_0$ would be that there was no relationship between plastic sample measurement and time. H$_1$ would be that there was a relationship between plastic sample measurement and time. With a p-value of 1.24e-05, less than the 0.05 level of significance, the null hypothesis was rejected. There is a correlation between measurement and time.
+For this research question, H$_0$ was that there was no relationship between plastic sample measurement and time. H$_1$ was that there was a relationship between plastic sample measurement and time. With a p-value of 1.24e-05, less than the 0.05 level of significance, the null hypothesis was rejected: there was a correlation between measurement and time.
 
 To highlight what other variables may have influenced plastic measurements, an AIC analysis was performed.
 
@@ -387,7 +436,7 @@ no change | 1070.6
 - Month | 1076.2
 - Year | 1090.5
 
-The measurement of plastics was compared to the possible explanatory variables: Month, Year, Latitude, and Longitude. The AIC was optimized without inclusion of Longitude, meaning Month, Year, and Latitude were explanatory variables.
+The measurement of plastics was compared to possible explanatory variables: Month, Year, Latitude, and Longitude. The AIC was optimized without inclusion of Longitude, meaning Month, Year, and Latitude were explanatory variables.
 
 ## 5.2 Time series
 
@@ -431,7 +480,7 @@ plastic.monthly.decomposed <- stl(plastic.monthly.ts, s.window = "periodic")
 
 ```
 
-```{r fig.cap="Figure 3. Decomposition of time series"}
+```{r, fig.cap="Figure 2. Decomposition of time series"}
 
 plot(plastic.monthly.decomposed)
 
@@ -455,18 +504,18 @@ plastics.Components.date <- plastics.Components %>%
 
 ```
 
-```{r}
+```{r fig.cap="Figure 3. Trend of observed data over time"}
 
 ggplot(plastics.Components.date) +
   geom_line(aes(y = Observed, x = Date, color='Observed')) +
   geom_line(aes(y = trend, x = Date, color = 'Time Series Trend')) + 
-              labs(title = "Figure 4. Trend of observed data over time", y = "Amount of Plastic (pieces/m^3)", colour = "Value")
+              labs(title = "Figure 3. Trend of observed data over time", y = "Amount of Plastic (pieces/m^3)", colour = "Value")
 
 ```
 
 A seasonal Mann Kendall test was performed to inspect the significance of the trend in measurement over time while accounting for the data's seasonality.
 
-H$_0$ would be that there was no monotonic trend in the data. H$_1$ would be that there was a monotonic trend in the data. 
+H$_0$ was that there was no monotonic trend in the data. H$_1$ was that there was a monotonic trend in the data. 
 
 ```{r include = FALSE}
 
@@ -504,12 +553,12 @@ summary(noseason.trend)
 
 ```
 
-```{r fig.cap="Figure 3. Observed values compared to values with seasonality removed."}
+```{r fig.cap="Figure 4. Observed values compared to values with seasonality removed."}
 
 ggplot(plastics.Components.date) +
   geom_line(aes(y = NoSeason, x = Date, color = "Seasonality Removed"))+
   geom_line(aes(y = Observed, x = Date, color = "Observed"))+
-  labs(title = "Figure 5. Observed values compared to values with seasonality removed", y = "Measurement (pieces/m^3)", x = "Year", colour = 'Value')
+  labs(title = "Figure 4. Observed values compared to values with seasonality removed", y = "Measurement (pieces/m^3)", x = "Year", colour = 'Value')
 
 summary(noseason.trend)
 
@@ -524,7 +573,7 @@ Analysis  | 2-sided P-Value
 Seasonal Mann-Kendall  | 0.11049
 Non-Seasonal Mann-Kendall | 0.069721
 
-Interestingly, the linear regression indicated there was a significant trend over time, while the time series analyses indicated that there was not. The data frame used for the linear regression, however, included more unique values as monthly values had not been averaged, and more years had been included. To experimentally investigate this, a linear regression was executed to assess the monthly mean values, included interpolations, by year. 
+Interestingly, the linear regression indicated that there was a significant trend over time, while the time series analyses indicated that there was not. The data frame used for the linear regression, however, included more unique values as monthly values had not been averaged, and more years had been included. To experimentally investigate this, a linear regression was executed to assess the monthly mean values, including interpolations, by year. 
 
 ```{r}
 
@@ -545,10 +594,13 @@ The number of data points collected by each of the sampling methods was analyzed
 
 ```{r R3 exploration 1}
 
-summary(microplastics_raw$Sampling.Method)
+microplastics_raw %>% count(Sampling.Method)
+
 ```
 
-Differences between the 27 sampling methods (plankton net and Plankton net should be combined as one method) were examined by subsetting the dataset based on their units, allowing identification of the methods used for each data collection purpose.
+Differences between the 27 sampling methods were examined by subsetting the dataset based on their units, allowing identification of the methods used for each data collection purpose.
+
+To measure the concentration of plastic in ocean sediments, methods such as the Ekman dredge, shovel, megacorer, petite ponar benthic grab, remotely operated vehicle, sediment grab sampler, day grab, metal spoon, and Van Veen grab sampler were applied.
 
 ```{r R3 exploration 2}
 pieces_per_kg_dw <- microplastics_raw %>% 
@@ -563,25 +615,33 @@ pieces_per_m_cube <- microplastics_raw %>%
   filter(Unit == "pieces/m3") %>% 
   group_by(Sampling.Method)
 
-summary(pieces_per_kg_dw$Sampling.Method)
+sum(pieces_per_kg_dw$Unit == "pieces kg-1 d.w.")
+
+unique(pieces_per_kg_dw$Sampling.Method)
+
 ```
 
-To measure the concentration of plastic in ocean sediments, methods such as the Ekman dredge, shovel, megacorer, petite ponar benthic grab, remotely operated vehicle, sediment grab sampler, day grab, metal spoon, and Van Veen grab sampler were applied.
-
-Next, the sampling methods employed in nurdle patrols were examined.
+Next, the sampling methods employed in nurdle patrols were examined. For nurdle patrol purposes, only the hand-picking method was utilized.
 
 ```{r R3 exploration 3}
-summary(pieces_per_10mins$Sampling.Method)
-```
-For nurdle patrol purposes, only the hand-picking method was utilized.
 
-```{r R3 exploration 4}
-summary(pieces_per_m_cube$Sampling.Method)
+sum(pieces_per_10mins$Unit == "pieces/10 mins")
+
+unique(pieces_per_10mins$Sampling.Method)
+
 ```
 
 A total of 18 methods were used to measure the concentration of microplastics in water. This analysis focused on the dominant collection methods, defined as those with a sample size greater than 200: hand picking, Neuston net, Manta net, grab sample, PVC cylinder, and intake seawater pump.
 
-The measurement values were log-transformed to allow better comparison across different measurement magnitudes.
+```{r R3 exploration 4}
+
+sum(pieces_per_m_cube$Unit == "pieces/m3")
+
+unique(pieces_per_m_cube$Sampling.Method)
+
+```
+
+The measurement values were then log-transformed to allow better comparison across different measurement magnitudes.
 
 ```{r R3 wrangling}
 methods_selected <- microplastics_raw %>% 
@@ -591,21 +651,21 @@ methods_selected <- microplastics_raw %>%
 methods_selected$Measurement.log <- log(methods_selected$Measurement)
 ```
 
-A boxplot was plotted to compare the log-transformed measurements [log(pieces/m^3)] for each sampling method.
+A boxplot was plotted to compare the log-transformed measurements [log(pieces/m$^3$)] for each sampling method.
 
-```{r R3 boxplot fig.cap='Figure 3. Sampling method comparison'}
+```{r R3, fig.cap='Figure 5. Sampling method comparison'}
 ggplot(methods_selected, aes(x = Sampling.Method, y = Measurement)) +
   geom_boxplot() +
   scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
                 labels = scales::trans_format("log10", 
                                               scales::math_format(10^.x))) +
-  labs(title = "Figure 3. Sampling method comparison", 
+  labs(title = "Figure 5. Sampling method comparison", 
        y = expression(Measurement ~ (log[pieces / m^3]))) +
   xlab(NULL) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-For this research question, the null hypothesis (H$_0$) would be that there was no difference in the amount of plastic collected between various sampling methods. The alternative hypothesis (H$_1$) would be that there was a difference in the amount of plastic collected between various sample methods. 
+For this research question, H$_0$ was that there was no difference in the amount of plastic collected between various sampling methods. H$_1$ was that there was a difference in the amount of plastic collected between various sample methods. 
 
 The boxplot indicated that there was significant variability in measurement values across the sampling methods. The PVC cylinder method had higher median measurements compared to other methods, while grab sample and Neuston net had medians lower than 0.1.  
 
@@ -613,7 +673,11 @@ Hand picking, grab sample, and PVC cylinder had relatively narrow boxes, suggest
 
 # 6. Summary and Conclusions
 
-The study explored three major research questions about plastic pollution in the ocean. For the first question, it was discovered that the density of plastics in the gyre varies significantly, with month, year, and latitude serving as explanatory variables, resulting in the rejection of the null hypothesis. These spatial differences may be due to varying levels of trash emitted by different countries and entering the gyre from different directions. For the second question, no seasonality was found in the data, but a significant linear regression trend suggested an increase in plastic pollution over time. As indicated previously, this is likely due to the increase in consumption rates of plastic materials increasing across the years. Lastly, the third question revealed significant variability in measurement values across different sampling methods. This variability is due to the diverse purposes of the sampling methods, as some data were collected from scientific studies focusing on the effects of plastic rather than maximizing the amount of plastic collected. 
+This study explored three major research questions about plastic pollution in the ocean. Exploration of the first question revealed that the density of plastics in the gyre varies significantly, with month, year, and latitude serving as explanatory variables. The null hypothesis was rejected. These spatial differences may be due to varying levels of trash emitted by different countries and entering the gyre from different directions, or from seasonal variability in wind patterns that drive the currents of the gyre.
 
-As plastic continues to degrade over time, it will become increasingly difficult to collect microplastics using current methods, as they integrate more deeply into our food chain. Considering the rise in plastic levels observed in samples, the most effective solutions would be to eliminate the use of single-use plastics and enforce stricter regulations on the disposal of fishing gear into the ocean. 
+For the second question, no significant time series trend was found, but a significant linear regression trend suggested an increase in plastic pollution over time. This is likely due to the consumption rates of plastic materials increasing over the years. 
+
+Lastly, the third question revealed significant variability in measurement values across different sampling methods. This variability could be attributed to a number of factors, including some data being collected from scientific studies focusing on the effects of plastic rather than maximizing the amount of plastic collected, as well as the process of microplastic collection from different materials (i.e. water, sediment, etc.) requiring different tools with different capacities.
+
+As plastic continues to degrade over time, it may become increasingly difficult to collect microplastics using current methods, as they integrate more deeply into our food chain. Considering the rise in plastic levels observed in this dataset, the most effective solutions would be to eliminate the use of single-use plastics and enforce stricter regulations on the disposal of fishing gear into the ocean. 
 
