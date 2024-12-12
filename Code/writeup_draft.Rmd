@@ -1,5 +1,5 @@
 ---
-title: "ENVIRON 872 Final Project"
+title: "ENVIRON 872 Final Project: Spatial and Temporal Analysis of Microplastic Distribution in the Great Pacific Garbage Patch"
 author: "Rebecca Cox, Jingze Dai, and Mason Ibrahim"
 date: "2024-12-04"
 output: 
