@@ -6,6 +6,10 @@ output:
   html_document:
     toc: TRUE
   
+  ---
+\listoftables
+\listoffigures
+
 ---
 
 ```{r include=FALSE}
