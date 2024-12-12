@@ -606,7 +606,15 @@ The number of data points collected by each of the sampling methods was analyzed
 
 ```{r R3 exploration 1}
 
-microplastics_raw %>% count(Sampling.Method)
+sampling_summary_raw <- microplastics_raw %>%
+  dplyr::group_by(Sampling.Method) %>%
+  dplyr::summarise(Count = n()) %>%
+  dplyr::arrange(desc(Count))
+
+DT::datatable(
+  sampling_summary_raw,
+  caption = "Unique Sampling Methods and Their Counts"
+)
 
 ```
 
@@ -627,30 +635,45 @@ pieces_per_m_cube <- microplastics_raw %>%
   filter(Unit == "pieces/m3") %>% 
   group_by(Sampling.Method)
 
-sum(pieces_per_kg_dw$Unit == "pieces kg-1 d.w.")
 
-unique(pieces_per_kg_dw$Sampling.Method)
 
+sampling_summary1 <- pieces_per_kg_dw %>%
+  dplyr::group_by(Sampling.Method) %>%
+  dplyr::summarise(Count = n()) %>%
+  dplyr::arrange(desc(Count))
+
+DT::datatable(
+  sampling_summary1,
+  caption = "Count of Measurement Methods with Unit 'pieces/ kg dw'"
+)
 ```
 
 Next, the sampling methods employed in nurdle patrols were examined. For nurdle patrol purposes, only the hand-picking method was utilized. 5,817 samples were collected using this method, with the units of pieces per 10 minutes.
 
 ```{r R3 exploration 3}
+sampling_summary2 <- pieces_per_10mins %>%
+  dplyr::group_by(Sampling.Method) %>%
+  dplyr::summarise(Count = n()) %>%
+  dplyr::arrange(desc(Count))
 
-sum(pieces_per_10mins$Unit == "pieces/10 mins")
-
-unique(pieces_per_10mins$Sampling.Method)
-
+DT::datatable(
+  sampling_summary2,
+  caption = "Count of Measurement Methods with Unit 'pieces/ 10 mins'"
+)
 ```
 
 A total of 18 methods were used to measure the concentration of microplastics in water. This analysis focused on the dominant collection methods, defined as those with a sample size greater than 200: hand picking, Neuston net, Manta net, grab sample, PVC cylinder, and intake seawater pump. 16,031 samples were collected using these methods, with units of pieces per m$^3$.
 
 ```{r R3 exploration 4}
+sampling_summary3 <- pieces_per_m_cube %>%
+  dplyr::group_by(Sampling.Method) %>%
+  dplyr::summarise(Count = n()) %>%
+  dplyr::arrange(desc(Count))
 
-sum(pieces_per_m_cube$Unit == "pieces/m3")
-
-unique(pieces_per_m_cube$Sampling.Method)
-
+DT::datatable(
+  sampling_summary3,
+  caption = "Count of Measurement Methods with Unit 'pieces/ m3'"
+)
 ```
 
 The measurement values were then log-transformed to allow better comparison across different measurement magnitudes.
