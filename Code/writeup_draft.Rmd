@@ -372,6 +372,9 @@ ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
 
 ```
 
+
+</div>
+
 At first glance, there appeared to be an upward trend in the graph of plastic sample measurement over time. We investigated the significance of this trend further in our analysis (Section 5.1).
 
 # 5. Analysis
