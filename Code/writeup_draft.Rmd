@@ -8,10 +8,10 @@ output:
 
 ---
 
-## Git Hub Respository
+### Git Hub Respository
 https://github.com/jz-dai/Cox_Dai_Ibrahim
 
-## List of Tables
+### List of Tables
 
 1. **Table 1**: Dataset information.
 2. **Table 2**: NOAA NCEI Microplastics data contributors.
@@ -19,7 +19,7 @@ https://github.com/jz-dai/Cox_Dai_Ibrahim
 4. **Table 4**: AIC Analysis, formula = Measurement ~ Year + Month + Latitude + Longitude.
 5. **Table 5**: Trend Analyses.
 
-## List of Figures
+### List of Figures
 
 1. **Figure 1**: Measured plastic per sample over time.
 2. **Figure 2**: Decomposition of time series.
@@ -27,7 +27,7 @@ https://github.com/jz-dai/Cox_Dai_Ibrahim
 4. **Figure 4**: Observed values compared to values with seasonality removed.
 5. **Figure 5**: Sampling method comparison.
 
-## List of Maps
+### List of Maps
 
 1. **Map 1**: Global microplastics data.
 2. **Map 2**: Neuston net samples collected within the Great Pacific Garbage Patch.
@@ -178,6 +178,8 @@ summary(as.factor(microplastics_raw$Unit))
 
 Furthermore, the downloaded dataset contained information from across the globe.
 
+<center>
+
 ```{r data exploration 3}
 globalmicroplastics.sf <- microplastics_raw %>% 
   st_as_sf(
@@ -189,6 +191,8 @@ mapview(globalmicroplastics.sf)
 ```
 
 Map 1. Global microplastics data.
+
+</center>
 
 While the worldwide data allowed us to obtain broader information about sampling distribution and differing sample collection methods, we chose to narrow our scope to a subset of this data: samples collected within the North Pacific Subtropical Gyre, known as the Great Pacific Garbage Patch.
 
@@ -271,9 +275,9 @@ mapview(NPSG_plastics)
 
 ```
 
-</center>
-
 Map 2. Neuston net samples collected within the Great Pacific Garbage Patch.
+
+</center>
 
 <style>
 .centered {
@@ -357,7 +361,7 @@ ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
 
 </div>
 
-```{r  fig.cap="Plastics over Time"}
+```{r  fig.cap="Figure 1. Measured plastic per sample over time"}
 #remove outlier
 
 ggplot(plastics_2000s, aes(x = Year, y = Measurement)) +
@@ -603,9 +607,9 @@ microplastics_raw %>% count(Sampling.Method)
 
 ```
 
-Differences between the 27 sampling methods were examined by subsetting the dataset based on their units, allowing identification of the methods used for each data collection purpose.
+Differences between the 27 sampling methods, after the combination of "plankton net" and "Plankton net", were examined by subsetting the dataset based on their units, allowing identification of the methods used for each data collection purpose.
 
-To measure the concentration of plastic in ocean sediments, methods such as the Ekman dredge, shovel, megacorer, petite ponar benthic grab, remotely operated vehicle, sediment grab sampler, day grab, metal spoon, and Van Veen grab sampler were applied.
+To measure the concentration of plastic in ocean sediments, methods such as the Ekman dredge, shovel, megacorer, petite ponar benthic grab, remotely operated vehicle, sediment grab sampler, day grab, metal spoon, and Van Veen grab sampler were applied. 418 samples were collected using these methods, with the units of pieces per kg dry weight.
 
 ```{r R3 exploration 2}
 pieces_per_kg_dw <- microplastics_raw %>% 
@@ -626,7 +630,7 @@ unique(pieces_per_kg_dw$Sampling.Method)
 
 ```
 
-Next, the sampling methods employed in nurdle patrols were examined. For nurdle patrol purposes, only the hand-picking method was utilized.
+Next, the sampling methods employed in nurdle patrols were examined. For nurdle patrol purposes, only the hand-picking method was utilized. 5,817 samples were collected using this method, with the units of pieces per 10 minutes.
 
 ```{r R3 exploration 3}
 
@@ -636,7 +640,7 @@ unique(pieces_per_10mins$Sampling.Method)
 
 ```
 
-A total of 18 methods were used to measure the concentration of microplastics in water. This analysis focused on the dominant collection methods, defined as those with a sample size greater than 200: hand picking, Neuston net, Manta net, grab sample, PVC cylinder, and intake seawater pump.
+A total of 18 methods were used to measure the concentration of microplastics in water. This analysis focused on the dominant collection methods, defined as those with a sample size greater than 200: hand picking, Neuston net, Manta net, grab sample, PVC cylinder, and intake seawater pump. 16,031 samples were collected using these methods, with units of pieces per m$^3$.
 
 ```{r R3 exploration 4}
 
