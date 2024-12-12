@@ -690,3 +690,13 @@ Lastly, the third question revealed significant variability in measurement value
 
 As plastic continues to degrade over time, it may become increasingly difficult to collect microplastics using current methods, as they integrate more deeply into our food chain. Considering the rise in plastic levels observed in this dataset, the most effective solutions would be to eliminate the use of single-use plastics and enforce stricter regulations on the disposal of fishing gear into the ocean. 
 
+# 7. Bibliography
+
+Anderson, Kinsley. Synthetic Seas: The Great Pacific Garbage Patch. 2017. https://hilo.hawaii.edu/campuscenter/hohonu/volumes/documents/SyntheticSeasTheGreatPacificGarbagePatch.pdf.
+
+Great Pacific Garbage Patch. https://education.nationalgeographic.org/resource/great-pacific-garbage-patch. Accessed 7 Dec. 2024. 
+
+Karl, D. M. (1999). A sea of change: Biogeochemical variability in the north pacific subtropical gyre. Ecosystems, 2(3), 181-214. doi:https://doi.org/10.1007/s100219900068 
+
+Wang, Sumin, et al. (2020). “Microplastic Abundance, Distribution and Composition in the Mid-West Pacific Ocean.” Environmental Pollution, 264, 114-125. ScienceDirect, https://doi.org/10.1016/j.envpol.2020.114125. 
+Wright, Stephanie L., et al. “The Physical Impacts of Microplastics on Marine Organisms: A Review.” Environmental Pollution, vol. 178, July 2013, pp. 483–92. ScienceDirect, https://doi.org/10.1016/j.envpol.2013.02.031. 
