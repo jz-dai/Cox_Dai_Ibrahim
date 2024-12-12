@@ -16,7 +16,7 @@ Data was accessed 11/6/2024
 
 OBJECTID: Object ID
 
-Spatial Variaboles:
+Spatial Variables:
 
 Oceans: Which ocean the microplastics were collected in.          
 Regions: If applicable, which region the microplastics were collected in (eg. Gulf of Mexico, Caribbean Sea, etc.).
